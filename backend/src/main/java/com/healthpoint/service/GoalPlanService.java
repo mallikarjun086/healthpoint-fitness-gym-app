@@ -77,6 +77,13 @@ public class GoalPlanService {
         return profileRepo.findByUserId(userId);
     }
 
+    public void updateWorkoutPlanFromJson(Long userId, String workoutJson) {
+        UserProfile profile = profileRepo.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User profile not found for ID: " + userId));
+        profile.setWorkoutPlanJson(workoutJson);
+        profileRepo.save(profile);
+    }
+
     // ---------- MACRO CALCULATOR ----------
     private Map<String, Integer> calculateMacros(double weightKg, double bmi, String goal, String exp) {
         double baseCalories = weightKg * 30;

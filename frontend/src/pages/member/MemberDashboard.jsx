@@ -15,6 +15,8 @@ import {
 import { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import api from '../../api';
+import AiChatWidget from '../../components/ai/AiChatWidget';
+import AiInsightCard from '../../components/ai/AiInsightCard';
 
 const MemberDashboard = () => {
   const [user, setUser] = useState({ name: 'Mallikarjun' });
@@ -168,6 +170,8 @@ const MemberDashboard = () => {
 
           {/* Right Sidebar - Activity & Info */}
           <div className="space-y-8">
+            <AiInsightCard type="nudge" />
+            <AiInsightCard type="progress" />
             <div className="glass-card p-6">
               <h4 className="text-sm font-black uppercase tracking-widest mb-6 flex items-center justify-between">
                 Performance Tip <ChevronDown className="w-4 h-4" />
@@ -205,6 +209,7 @@ const MemberDashboard = () => {
           </div>
         </div>
       </main>
+      <AiChatWidget />
     </div>
   );
 };
