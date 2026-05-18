@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: healthpoint-fitness
+
+  datasource:
+    url: jdbc:h2:mem:healthpoint;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    database-platform: org.hibernate.dialect.H2Dialect
+
+server:
+  port: 8080
+
+razorpay:
+  key:
+    id: rzp_test_your_key_id_here
+    secret: your_secret_key_here

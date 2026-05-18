@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface/50 backdrop-blur-md border border-border rounded-2xl;
+  }
+  
+  .btn-premium {
+    @apply bg-gradient-premium text-black font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 active:scale-95;
+  }
+
+  .nav-link {
+    @apply text-gray-400 hover:text-white transition-colors;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full hover:bg-gray-700 transition-colors;
+}
