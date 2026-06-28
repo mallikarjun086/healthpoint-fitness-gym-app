@@ -5,15 +5,19 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/healthpoint
     username: postgres
-    password: password # Replace with your actual Postgres password
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     open-in-view: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  jackson:
+    serialization:
+      indent-output: true
 
 server:
   port: 8080
@@ -26,10 +30,18 @@ razorpay:
 ai:
   openai:
     api-key: ${OPENAI_API_KEY:sk-placeholder}
-    base-url: "https://api.openai.com/v1"
+    base-url: https://api.openai.com/v1
+
     models:
-      chat: "gpt-4o-mini"
-      reasoning: "gpt-4o"
+      chat: gpt-4o-mini
+      reasoning: gpt-4o
+
     timeout-ms: 30000
     max-tokens: 500
     memory-window: 10
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    com.healthpoint: DEBUG
