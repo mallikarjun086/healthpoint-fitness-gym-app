@@ -12,23 +12,101 @@ import {
 import { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import api from '../../api';
+import useRazorpay from '../../hooks/useRazorpay';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const { loadScript } = useRazorpay();
+  const { user } = useAuth();
+
+  const currentUserId = user?.id || 1;
 
   useEffect(() => {
     fetchPayments();
-  }, []);
+  }, [currentUserId]);
 
   const fetchPayments = async () => {
     try {
-      const res = await api.get('/payments/user/1');
+      const res = await api.get(`/payments/user/${currentUserId}`);
       setPayments(res.data);
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch payments", err);
       setLoading(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      setProcessing(true);
+      const isLoaded = await loadScript();
+      if (!isLoaded) {
+        toast.error("Razorpay SDK failed to load");
+        setProcessing(false);
+        return;
+      }
+
+      // 1. Create order on backend
+      const orderRes = await api.post('/payments/create-order', {
+        userId: currentUserId,
+        amount: 2999, // Elite membership price
+        currency: 'INR',
+        paymentFor: 'MEMBERSHIP',
+        referenceId: 3 // planId for Elite
+      });
+
+      const { orderId, amount, currency } = orderRes.data;
+
+      // 2. Initialize Razorpay options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: amount * 100,
+        currency: currency,
+        name: "HealthPoint Fitness",
+        description: "Elite Membership Upgrade",
+        order_id: orderId,
+        handler: async function (response) {
+          try {
+            // 3. Verify payment on backend
+            await api.post('/payments/verify', {
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              userId: currentUserId,
+              paymentFor: 'MEMBERSHIP',
+              referenceId: 3
+            });
+            toast.success("Payment successful! Membership upgraded.");
+            fetchPayments();
+          } catch (err) {
+            toast.error("Payment verification failed.");
+            console.error(err);
+          }
+        },
+        prefill: {
+          name: user?.name || "Member User",
+          email: user?.email || "user@hp.com",
+          contact: user?.phoneNumber || "9876543210"
+        },
+        theme: {
+          color: "#c9ff00" // bg-primary equivalent
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.on('payment.failed', function (response) {
+        toast.error("Payment failed: " + response.error.description);
+      });
+      paymentObject.open();
+    } catch (err) {
+      toast.error(err.response?.data?.error || "Could not initiate payment");
+      console.error(err);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -84,7 +162,14 @@ const Payments = () => {
               </div>
 
               <div className="flex gap-4">
-                <button className="btn-premium px-8 py-3 text-sm">Upgrade Plan</button>
+                <button 
+                  className="btn-premium px-8 py-3 text-sm flex items-center gap-2 disabled:opacity-50"
+                  onClick={handleUpgrade}
+                  disabled={processing}
+                >
+                  {processing && <div className="animate-spin w-4 h-4 border-2 border-black border-t-transparent rounded-full"></div>}
+                  {processing ? 'Processing...' : 'Upgrade Plan'}
+                </button>
                 <button className="px-8 py-3 text-sm text-gray-400 hover:text-white transition-colors">Cancel Subscription</button>
               </div>
             </motion.div>

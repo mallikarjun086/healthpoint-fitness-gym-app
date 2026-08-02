@@ -5,32 +5,30 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import api from '../../api';
 
+import { useAuth } from '../../context/AuthContext';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const loginPromise = api.post('/auth/login', { email, password });
-    
-    toast.promise(loginPromise, {
-      loading: 'Authenticating...',
-      success: (res) => {
-        const { token } = res.data;
-        localStorage.setItem('token', token);
-        
-        // Demo routing logic based on email
-        if (email.includes('admin')) navigate('/admin/dashboard');
-        else if (email.includes('trainer')) navigate('/trainer/dashboard');
-        else navigate('/member/dashboard');
-        
-        return 'Logged in successfully!';
-      },
-      error: (err) => {
-        return err.response?.data?.error || 'Login failed. Please check credentials.';
-      }
-    });
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      const { token, user } = res.data;
+      login(token, user);
+
+      toast.success(`Welcome back, ${user.name}!`);
+      
+      const role = user.role?.toUpperCase();
+      if (role === 'ADMIN') navigate('/admin/dashboard');
+      else if (role === 'TRAINER') navigate('/trainer/dashboard');
+      else navigate('/member/dashboard');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Login failed. Please check credentials.');
+    }
   };
 
   return (

@@ -29,6 +29,9 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(nullable = false)
+    private String role = "MEMBER";
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

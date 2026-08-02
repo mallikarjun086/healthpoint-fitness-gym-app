@@ -1,103 +1,100 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-  Leaf, 
   Utensils, 
-  ChevronRight, 
   Download,
   Flame,
-  Info,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  RefreshCw,
+  CheckCircle2
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
 import api from '../../api';
 
 const DietPlans = () => {
-  const [plans, setPlans] = useState([]);
-  const [filteredPlans, setFilteredPlans] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [dietMeals, setDietMeals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('ALL');
 
   useEffect(() => {
-    fetchPlans();
+    fetchPersonalizedDiet();
   }, []);
 
-  useEffect(() => {
-    if (activeTab === 'ALL') {
-      setFilteredPlans(plans);
-    } else {
-      setFilteredPlans(plans.filter(p => p.mealType === activeTab));
-    }
-  }, [activeTab, plans]);
-
-  const fetchPlans = async () => {
+  const fetchPersonalizedDiet = async () => {
     try {
-      const res = await api.get('/diet/all');
-      setPlans(res.data);
-      setFilteredPlans(res.data);
+      const res = await api.get('/goals/my-plan');
+      if (res.data && res.data.dietPlanJson) {
+        setProfile(res.data);
+        try {
+          const parsed = JSON.parse(res.data.dietPlanJson);
+          setDietMeals(parsed);
+        } catch (e) {
+          console.error("Error parsing dietPlanJson", e);
+        }
+      }
       setLoading(false);
     } catch (err) {
-      console.error("Failed to fetch diet plans", err);
+      console.error("Failed to fetch diet plan", err);
       setLoading(false);
     }
   };
 
-  const downloadPlan = (plan) => {
+  const downloadPlan = () => {
+    if (!profile) return;
     const content = `
-HEALTHPOINT FITNESS - DIET PLAN
-================================
-Title: ${plan.title}
-Meal Type: ${plan.mealType}
-Total Calories: ${plan.calories} kcal
+HEALTHPOINT FITNESS - PERSONALIZED DIET PLAN
+=============================================
+Goal Type: ${profile.goalType}
+Target Calories: ${profile.dailyCalories} kcal/day
 
-NUTRITION BREAKDOWN:
-- Protein: ${plan.protein}g
-- Carbs: ${plan.carbs}g
-- Fats: ${plan.fat}g
+DAILY MACRONUTRIENT TARGETS:
+- Protein: ${profile.dailyProtein}g
+- Carbs: ${profile.dailyCarbs}g
+- Fats: ${profile.dailyFat}g
 
-MEAL ITEMS:
-${plan.items.split(',').map(item => `• ${item.trim()}`).join('\n')}
+MEAL TIMINGS & FOOD ITEMS:
+${dietMeals.map(m => `\n[${m.mealName} - ${m.time}]\nItems: ${m.items}\nNotes: ${m.notes}`).join('\n')}
 
 NOTES:
 - Drink at least 3-4 liters of water daily.
 - Consistency is key to seeing results.
-- Consult with your trainer before making major changes.
-    `;
-    
+`;
+
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${plan.title.replace(/\s+/g, '_')}_Plan.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `HealthPoint_DietPlan_${profile.goalType}.txt`;
+    a.click();
   };
 
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar role="member" />
-      
+
       <main className="flex-1 ml-64 p-8">
-        <header className="flex justify-between items-center mb-10">
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Nutrition Plans</h1>
-            <p className="text-gray-400 mt-1">Specialized meal protocols for your goals.</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-xs font-black uppercase text-primary tracking-widest">Personalized Macro & Meal Plan</span>
+            </div>
+            <h1 className="text-3xl font-bold">Your Custom Nutrition Plan</h1>
+            <p className="text-gray-400 mt-1">Calculated specifically for your body weight, BMI, and daily energy expenditure.</p>
           </div>
-          <div className="flex gap-4 p-1 bg-surface border border-border rounded-2xl">
-            {['ALL', 'VEG', 'NON_VEG'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === tab 
-                  ? 'bg-primary text-black' 
-                  : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                {tab.replace('_', ' ')}
+
+          <div className="flex items-center gap-3">
+            {profile && (
+              <button onClick={downloadPlan} className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold flex items-center gap-2 hover:bg-white/10 transition-colors">
+                <Download className="w-4 h-4 text-primary" /> Download PDF / TXT
               </button>
-            ))}
+            )}
+            <Link to="/member/goals" className="btn-premium px-6 py-2.5 text-xs flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 text-black" /> Re-Calculate
+            </Link>
           </div>
         </header>
 
@@ -105,95 +102,85 @@ NOTES:
           <div className="flex justify-center py-20">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : (
-          <div className="grid lg:grid-cols-2 gap-8">
-            {filteredPlans.map((plan, i) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="glass-card group overflow-hidden border-t-4 border-t-transparent hover:border-t-primary transition-all duration-500"
-              >
-                <div className="p-8">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className={`p-3 rounded-2xl ${plan.mealType === 'VEG' ? 'bg-green-500/10' : 'bg-orange-500/10'}`}>
-                      {plan.mealType === 'VEG' ? (
-                        <Leaf className="w-6 h-6 text-green-500" />
-                      ) : (
-                        <Utensils className="w-6 h-6 text-orange-500" />
-                      )}
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">Calories</span>
-                      <span className="text-2xl font-black text-primary">{plan.calories}</span>
-                    </div>
+        ) : profile && dietMeals.length > 0 ? (
+          <div className="space-y-8">
+            {/* Person-Specific Macro Targets Banner */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass-card p-8 bg-gradient-to-br from-primary/10 via-transparent to-transparent border-l-4 border-l-primary"
+            >
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                <div>
+                  <span className="text-xs font-black text-primary uppercase tracking-widest">Target Daily Energy</span>
+                  <h2 className="text-4xl font-black italic">{profile.dailyCalories} <span className="text-lg font-normal text-gray-400">kcal/day</span></h2>
+                </div>
+                <div className="flex gap-4">
+                  <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5 text-center">
+                    <div className="text-[10px] text-gray-400 uppercase font-bold">Protein</div>
+                    <div className="text-xl font-bold text-blue-400">{profile.dailyProtein}g</div>
                   </div>
-
-                  <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">{plan.title}</h3>
-                  <p className="text-gray-400 text-sm mb-8 leading-relaxed italic border-l-2 border-primary/20 pl-4">
-                    "{plan.description}"
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white/5 rounded-2xl p-4 text-center border border-white/5 group-hover:border-primary/20 transition-all">
-                      <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Protein</div>
-                      <div className="text-lg font-black">{plan.protein}g</div>
-                    </div>
-                    <div className="bg-white/5 rounded-2xl p-4 text-center border border-white/5 group-hover:border-primary/20 transition-all">
-                      <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Carbs</div>
-                      <div className="text-lg font-black">{plan.carbs}g</div>
-                    </div>
-                    <div className="bg-white/5 rounded-2xl p-4 text-center border border-white/5 group-hover:border-primary/20 transition-all">
-                      <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Fat</div>
-                      <div className="text-lg font-black">{plan.fat}g</div>
-                    </div>
+                  <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5 text-center">
+                    <div className="text-[10px] text-gray-400 uppercase font-bold">Carbs</div>
+                    <div className="text-xl font-bold text-amber-400">{profile.dailyCarbs}g</div>
                   </div>
-
-                  <div className="space-y-3 mb-8">
-                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <Info className="w-4 h-4" /> Recommended Items
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {plan.items.split(',').map((item, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-gray-300">
-                          {item.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 pt-6 border-t border-white/5">
-                    <button 
-                      onClick={() => downloadPlan(plan)}
-                      className="flex-1 bg-white/5 border border-white/10 hover:border-primary/50 text-white font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition-all"
-                    >
-                      <Download className="w-4 h-4 text-primary" /> Download PDF
-                    </button>
-                    <button className="flex-1 bg-primary text-black font-bold py-3 rounded-2xl flex items-center justify-center gap-2 hover:scale-105 transition-transform">
-                      Activate Plan <ArrowRight className="w-4 h-4" />
-                    </button>
+                  <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5 text-center">
+                    <div className="text-[10px] text-gray-400 uppercase font-bold">Fats</div>
+                    <div className="text-xl font-bold text-rose-400">{profile.dailyFat}g</div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
+              </div>
+            </motion.div>
+
+            {/* Meal Timings & Items Schedule */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {dietMeals.map((meal, i) => (
+                <motion.div
+                  key={meal.mealName || i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  className="glass-card p-6 flex flex-col justify-between hover:border-primary/40 transition-all border-t-2 border-t-emerald-500/30"
+                >
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                        {meal.mealName}
+                      </span>
+                      <span className="text-xs text-gray-400 flex items-center gap-1 font-semibold">
+                        <Clock className="w-3.5 h-3.5 text-gray-400" /> {meal.time}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Food Selection</div>
+                      <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm font-semibold text-gray-200 leading-relaxed">
+                        {meal.items}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-white/10 text-xs text-gray-400">
+                    <strong className="text-primary">Tip:</strong> {meal.notes}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="glass-card p-12 text-center max-w-xl mx-auto my-12">
+            <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <Utensils className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold mb-3">No Custom Diet Plan Found</h2>
+            <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+              Complete your goal profile setup to calculate your exact caloric & macro targets and generate your custom meal plan.
+            </p>
+            <Link to="/member/goals" className="btn-premium px-8 py-3 text-sm inline-flex items-center gap-2">
+              Setup Your Goal Profile <ArrowRight className="w-4 h-4 text-black" />
+            </Link>
           </div>
         )}
-
-        {/* Nutrition Tips */}
-        <section className="mt-16">
-          <div className="glass-card p-8 bg-gradient-to-r from-primary/10 to-transparent flex flex-col md:flex-row items-center gap-8">
-            <div className="p-6 rounded-3xl bg-primary text-black">
-              <Clock className="w-10 h-10" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold mb-2">Meal Timing is Crucial</h3>
-              <p className="text-gray-400 max-w-2xl text-sm leading-relaxed">
-                For optimal results, try to consume your high-protein meals within 2 hours of your workout. This triggers the anabolic phase and speeds up muscle recovery.
-              </p>
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   );

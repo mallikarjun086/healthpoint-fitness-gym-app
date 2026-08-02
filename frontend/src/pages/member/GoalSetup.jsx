@@ -342,7 +342,7 @@ const StepPlanResult = ({ plan, parseJson, navigate }) => {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xs">
-                    {w.day?.slice(0, 3)}
+                    {(w.dayName || w.day || 'Day')?.slice(0, 3)}
                   </div>
                   <div>
                     <h4 className="font-bold text-sm uppercase italic">{w.focus}</h4>
@@ -353,7 +353,7 @@ const StepPlanResult = ({ plan, parseJson, navigate }) => {
                   <div className="flex gap-4 text-right flex-shrink-0">
                     <div><div className="text-xs text-gray-500 font-bold">Sets</div><div className="text-sm font-black text-primary">{w.sets}</div></div>
                     <div><div className="text-xs text-gray-500 font-bold">Reps</div><div className="text-sm font-black">{w.reps}</div></div>
-                    <div><div className="text-xs text-gray-500 font-bold">Rest</div><div className="text-sm font-black text-blue-400">{w.rest}</div></div>
+                    <div><div className="text-xs text-gray-500 font-bold">Rest</div><div className="text-sm font-black text-blue-400">{w.restPeriod || w.rest}</div></div>
                   </div>
                 )}
               </div>
@@ -373,7 +373,7 @@ const StepPlanResult = ({ plan, parseJson, navigate }) => {
               transition={{ delay: i * 0.05 }}
               className="glass-card p-5 hover:border-orange-500/20 transition-all">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-sm uppercase italic">{m.meal}</h4>
+                <h4 className="font-bold text-sm uppercase italic">{m.mealName || m.meal}</h4>
                 <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-3 py-1 rounded-full">{m.time}</span>
               </div>
               <p className="text-sm text-gray-300 mb-2">{m.items}</p>

@@ -24,10 +24,13 @@ import GoalSetup from './pages/member/GoalSetup';
 // Trainer Pages
 import TrainerDashboard from './pages/trainer/TrainerDashboard';
 
+import { AuthProvider } from './context/AuthContext';
+
 function App() {
   return (
-    <Router>
-      <Toaster position="top-right" richColors />
+    <AuthProvider>
+      <Router>
+        <Toaster position="top-right" richColors />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -68,6 +71,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
+    </AuthProvider>
   );
 }
 

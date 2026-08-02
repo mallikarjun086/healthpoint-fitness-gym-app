@@ -36,7 +36,7 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public String login(String email, String password) {
+    public User loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
@@ -44,6 +44,16 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        return user;
+    }
+
+    public String login(String email, String password) {
+        User user = loginUser(email, password);
         return jwtUtil.generateToken(user.getId(), user.getEmail());
+    }
+
+    public User getUserById(@NonNull Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
