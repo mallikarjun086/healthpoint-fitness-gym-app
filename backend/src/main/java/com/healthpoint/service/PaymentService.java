@@ -1,17 +1,18 @@
 package com.healthpoint.service;
 
 import com.healthpoint.entity.Payment;
-import com.healthpoint.entity.Subscription;
-import com.healthpoint.entity.AddOnSubscription;
+import com.healthpoint.entity.User;
 import com.healthpoint.repository.PaymentRepository;
 import com.healthpoint.repository.SubscriptionRepository;
 import com.healthpoint.repository.AddOnSubscriptionRepository;
+import com.healthpoint.repository.UserRepository;
 import com.razorpay.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -19,15 +20,18 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final AddOnSubscriptionRepository addOnRepository;
+    private final UserRepository userRepository;
     private final RazorpayService razorpayService;
 
     public PaymentService(PaymentRepository paymentRepository,
                           SubscriptionRepository subscriptionRepository,
                           AddOnSubscriptionRepository addOnRepository,
+                          UserRepository userRepository,
                           RazorpayService razorpayService) {
         this.paymentRepository = paymentRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.addOnRepository = addOnRepository;
+        this.userRepository = userRepository;
         this.razorpayService = razorpayService;
     }
 
@@ -37,8 +41,11 @@ public class PaymentService {
 
         Order order = razorpayService.createOrder(amount, currency, receipt);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
         Payment payment = new Payment();
-        payment.setUser(new com.healthpoint.entity.User() {{ setId(userId); }});
+        payment.setUser(user);
         payment.setAmount(amount);
         payment.setCurrency(currency);
         payment.setRazorpayOrderId(order.get("id"));
@@ -62,24 +69,31 @@ public class PaymentService {
             payment.setStatus("PAID");
             paymentRepository.save(payment);
 
-            if (referenceId == null) {
-                throw new IllegalArgumentException("referenceId must not be null");
-            }
-
-            // Activate subscription based on payment type
-            if ("MEMBERSHIP".equals(paymentFor)) {
-                Subscription sub = subscriptionRepository.findById(referenceId).orElseThrow();
-                sub.setStartDate(LocalDateTime.now());
-                sub.setEndDate(LocalDateTime.now().plusDays(sub.getPlan().getDurationDays()));
-                subscriptionRepository.save(sub);
-            } else if ("ADDON".equals(paymentFor)) {
-                AddOnSubscription addon = addOnRepository.findById(referenceId).orElseThrow();
-                addon.setStartDate(LocalDateTime.now());
-                addon.setEndDate(LocalDateTime.now().plusDays(30));
-                addOnRepository.save(addon);
+            if (referenceId != null) {
+                if ("MEMBERSHIP".equals(paymentFor)) {
+                    subscriptionRepository.findById(referenceId).ifPresent(sub -> {
+                        sub.setStartDate(LocalDateTime.now());
+                        sub.setEndDate(LocalDateTime.now().plusDays(sub.getPlan() != null ? sub.getPlan().getDurationDays() : 30));
+                        subscriptionRepository.save(sub);
+                    });
+                } else if ("ADDON".equals(paymentFor)) {
+                    addOnRepository.findById(referenceId).ifPresent(addon -> {
+                        addon.setStartDate(LocalDateTime.now());
+                        addon.setEndDate(LocalDateTime.now().plusDays(30));
+                        addOnRepository.save(addon);
+                    });
+                }
             }
         }
 
         return payment;
+    }
+
+    public List<Payment> getUserPayments(@NonNull Long userId) {
+        return paymentRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    public List<Payment> getAllPayments() {
+        return paymentRepository.findAll();
     }
 }

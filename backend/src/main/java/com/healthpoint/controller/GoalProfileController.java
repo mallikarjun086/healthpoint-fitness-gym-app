@@ -24,10 +24,10 @@ public class GoalProfileController {
     public ResponseEntity<?> setupGoal(@RequestBody GoalProfileRequest request,
                                        Authentication auth) {
         try {
-            Long userId = 1L;
-            if (auth != null && auth.getPrincipal() instanceof Long) {
-                userId = (Long) auth.getPrincipal();
+            if (auth == null || !(auth.getPrincipal() instanceof Long)) {
+                return ResponseEntity.status(401).body(Map.of("error", "Unauthorized access"));
             }
+            Long userId = (Long) auth.getPrincipal();
             Map<String, Object> plan = goalPlanService.createOrUpdateGoal(userId, request);
             return ResponseEntity.ok(plan);
         } catch (Exception e) {
@@ -39,10 +39,10 @@ public class GoalProfileController {
     @GetMapping("/my-plan")
     public ResponseEntity<?> getMyPlan(Authentication auth) {
         try {
-            Long userId = 1L;
-            if (auth != null && auth.getPrincipal() instanceof Long) {
-                userId = (Long) auth.getPrincipal();
+            if (auth == null || !(auth.getPrincipal() instanceof Long)) {
+                return ResponseEntity.status(401).body(Map.of("error", "Unauthorized access"));
             }
+            Long userId = (Long) auth.getPrincipal();
             Optional<UserProfile> profile = goalPlanService.getProfile(userId);
             if (profile.isPresent()) {
                 return ResponseEntity.ok(profile.get());

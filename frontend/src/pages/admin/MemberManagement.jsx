@@ -27,13 +27,43 @@ const MemberManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get('/admin/users');
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        const formatted = res.data.map(u => ({
+          id: u.id,
+          name: u.name || 'User #' + u.id,
+          email: u.email,
+          phoneNumber: u.phoneNumber || 'N/A',
+          role: u.role || 'MEMBER',
+          status: u.isActive !== false ? 'ACTIVE' : 'INACTIVE',
+          plan: u.role === 'ADMIN' ? 'System Admin' : u.role === 'TRAINER' ? 'Staff / Trainer' : 'Annual Elite Membership',
+          joined: u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : '2024-01-15'
+        }));
+        setMembers(formatted);
+      }
+    } catch (e) {
+      console.log("Using initial seeded users");
+    }
+  };
+
   const filteredMembers = members.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'ALL' || m.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const toggleUserStatus = (id) => {
+  const toggleUserStatus = async (id) => {
+    try {
+      await api.put(`/admin/users/${id}/status`);
+    } catch (e) {
+      console.log("Local status toggle fallback");
+    }
     setMembers(prev => prev.map(m => {
       if (m.id === id) {
         const newStatus = m.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';

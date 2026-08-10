@@ -2,30 +2,30 @@ import api from './index';
 
 export const aiService = {
   chat: async (data) => {
-    const response = await api.post('/api/ai/chat', data);
+    const response = await api.post('/ai/chat', data);
     return response.data;
   },
   
   adaptWorkout: async (request) => {
     // request can be a string prompt
-    const response = await api.post('/api/ai/adapt/workout', request, {
+    const response = await api.post('/ai/adapt/workout', request, {
       headers: { 'Content-Type': 'text/plain' }
     });
     return response.data;
   },
   
   applyWorkoutAdaptation: async (adaptationJson) => {
-    const response = await api.post('/api/ai/adapt/workout/apply', adaptationJson);
+    const response = await api.post('/ai/adapt/workout/apply', adaptationJson);
     return response.data;
   },
   
   getProgressInsight: async () => {
-    const response = await api.get('/api/ai/analytics/progress');
+    const response = await api.get('/ai/analytics/progress');
     return response.data;
   },
   
   getRetentionNudge: async () => {
-    const response = await api.get('/api/ai/analytics/nudge');
+    const response = await api.get('/ai/analytics/nudge');
     return response.data;
   }
 };

@@ -5,7 +5,6 @@ import com.healthpoint.ai.dto.OpenAiResponse;
 import com.healthpoint.ai.exception.AiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -28,11 +27,11 @@ public class OpenAiProviderImpl implements OpenAiProvider {
                     .uri("/chat/completions")
                     .body(java.util.Objects.requireNonNull(request))
                     .retrieve()
-                    .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+                    .onStatus(status -> status.is4xxClientError(), (req, res) -> {
                         log.error("Client Error from OpenAI: {}", res.getStatusCode());
                         throw new AiException("OpenAI API Client Error: " + res.getStatusCode());
                     })
-                    .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                    .onStatus(status -> status.is5xxServerError(), (req, res) -> {
                         log.error("Server Error from OpenAI: {}", res.getStatusCode());
                         throw new AiException("OpenAI API Server Error: " + res.getStatusCode());
                     })

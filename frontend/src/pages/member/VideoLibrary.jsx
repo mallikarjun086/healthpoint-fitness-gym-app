@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, 
@@ -11,231 +12,293 @@ import {
   Flame,
   Zap,
   Info,
-  X
+  X,
+  Sparkles,
+  Dumbbell,
+  CheckCircle2
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import api from '../../api';
+import AiChatWidget from '../../components/ai/AiChatWidget';
+
+const initialExerciseVideos = [
+  {
+    id: 1,
+    title: 'Barbell Bench Press Masterclass',
+    category: 'CHEST',
+    type: 'STRENGTH',
+    url: 'https://www.youtube.com/embed/rT7DgCr-3pg',
+    thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1000',
+    duration: '14 min',
+    level: 'Intermediate',
+    targetMuscles: 'Pectoralis Major, Anterior Deltoids, Triceps',
+    cues: 'Retract scapula, maintain 45-degree elbow tuck, explode up through mid-chest.',
+    mistakes: 'Flaring elbows to 90 degrees, lifting hips off bench, bouncing bar off sternum.',
+    isPremium: false
+  },
+  {
+    id: 2,
+    title: 'Conventional Deadlift Biomechanics',
+    category: 'BACK',
+    type: 'POWERLIFTING',
+    url: 'https://www.youtube.com/embed/op9kVnSso6Q',
+    thumbnail: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=1000',
+    duration: '18 min',
+    level: 'Advanced',
+    targetMuscles: 'Latissimus Dorsi, Erector Spinae, Glutes, Hamstrings',
+    cues: 'Pull slack out of bar, wedge hips into bar, push floor away through mid-foot.',
+    mistakes: 'Rounding lumbar spine, hitching bar above knees, yank off floor without tension.',
+    isPremium: true
+  },
+  {
+    id: 3,
+    title: 'High Bar Back Squat Technique',
+    category: 'LEGS',
+    type: 'HYPERTROPHY',
+    url: 'https://www.youtube.com/embed/ultWZbUMPL8',
+    thumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&q=80&w=1000',
+    duration: '16 min',
+    level: 'All Levels',
+    targetMuscles: 'Quadriceps, Gluteus Maximus, Adductor Magnus',
+    cues: 'Brace core with 360-degree intra-abdominal pressure, break at hips and knees simultaneously.',
+    mistakes: 'Knees caving inward (valgus), heels coming off floor, butt wink at deep depth.',
+    isPremium: false
+  },
+  {
+    id: 4,
+    title: 'Strict Overhead Barbell Press (OHP)',
+    category: 'SHOULDERS',
+    type: 'STRENGTH',
+    url: 'https://www.youtube.com/embed/2yjwXTZQDDI',
+    thumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80&w=1000',
+    duration: '12 min',
+    level: 'Intermediate',
+    targetMuscles: 'Anterior & Lateral Deltoids, Upper Chest, Triceps',
+    cues: 'Squeeze glutes and quads, clear chin path, lock out overhead inline with ears.',
+    mistakes: 'Excessive lumbar arching, leaning back to turn into incline press.',
+    isPremium: false
+  },
+  {
+    id: 5,
+    title: 'Incline Dumbbell Chest Press',
+    category: 'CHEST',
+    type: 'HYPERTROPHY',
+    url: 'https://www.youtube.com/embed/8iPEnn-ltC8',
+    thumbnail: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=1000',
+    duration: '10 min',
+    level: 'Beginner',
+    targetMuscles: 'Clavicular Head (Upper Chest), Anterior Deltoid',
+    cues: 'Set bench at 30-degree incline, converge dumbbells at top without clacking.',
+    mistakes: 'Setting bench angle too high (turns into shoulder press), dropping weights.',
+    isPremium: false
+  },
+  {
+    id: 6,
+    title: 'Romanian Deadlift (RDL) & Hamstring Fiber Growth',
+    category: 'LEGS',
+    type: 'HYPERTROPHY',
+    url: 'https://www.youtube.com/embed/JCXUYuzwNrM',
+    thumbnail: 'https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?auto=format&fit=crop&q=80&w=1000',
+    duration: '15 min',
+    level: 'Intermediate',
+    targetMuscles: 'Hamstrings, Gluteus Maximus, Erector Spinae',
+    cues: 'Hinge hips backwards like closing a door with your butt, soft knee bend, maintain flat spine.',
+    mistakes: 'Bending knees into squat, letting bar drift away from shins.',
+    isPremium: true
+  }
+];
 
 const VideoLibrary = () => {
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [activeCategory, setActiveCategory] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [videos, setVideos] = useState(initialExerciseVideos);
 
-  useEffect(() => {
-    fetchVideos();
-  }, []);
+  const categories = ['ALL', 'CHEST', 'BACK', 'LEGS', 'SHOULDERS', 'ARMS', 'CORE'];
 
-  const fetchVideos = async () => {
-    try {
-      const res = await api.get('/content/all');
-      // Adding professional thumbnails since the database only stores URLs for animations
-      const enhancedVideos = res.data.map(v => ({
-        ...v,
-        thumbnail: v.type === 'YOGA' 
-          ? "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1000"
-          : v.type === 'HIIT'
-          ? "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=1000"
-          : "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1000",
-        duration: "25 min",
-        level: "Beginner",
-        calories: "150"
-      }));
-      setVideos(enhancedVideos);
-      setLoading(false);
-    } catch (err) {
-      console.error("Failed to fetch videos", err);
-      setLoading(false);
-    }
-  };
-
-  const filteredVideos = videos.filter(video => {
-    const matchesTab = activeTab === 'ALL' || video.type === activeTab;
-    const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTab && matchesSearch;
+  const filteredVideos = videos.filter(v => {
+    const matchesCategory = activeCategory === 'ALL' || v.category === activeCategory;
+    const matchesSearch = v.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          v.targetMuscles.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar role="member" />
-      
-      <main className="flex-1 ml-64 p-8">
-        <header className="flex justify-between items-end mb-12">
+
+      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Crown className="w-5 h-5 text-primary" />
-              <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">Premium Library</span>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-xs font-black uppercase text-primary tracking-widest">Exercise Execution Guide</span>
             </div>
-            <h1 className="text-4xl font-black italic uppercase tracking-tighter">On-Demand Training</h1>
-            <p className="text-gray-400 mt-2">Exclusive masterclasses and animated routines for Elite Members.</p>
+            <h1 className="text-3xl font-black italic uppercase tracking-tight">HD Video Exercise Library</h1>
+            <p className="text-gray-400 mt-1">Master biomechanics, execution cues, and safety guidelines for peak hypertrophy & strength.</p>
           </div>
-          
-          <div className="flex gap-4">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-hover:text-primary transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search masterclasses..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-surface border border-border focus:border-primary px-12 py-3 rounded-2xl outline-none text-sm w-80 transition-all"
-              />
-            </div>
+
+          {/* Search Bar */}
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              type="text"
+              placeholder="Search exercise or muscle group..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-surface border border-border rounded-xl py-2.5 pl-10 pr-4 text-xs text-white outline-none focus:border-primary/50"
+            />
           </div>
         </header>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
-          {['ALL', 'HIIT', 'YOGA', 'STRENGTH', 'MOBILITY'].map((tab) => (
+        {/* Category Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8">
+          <Filter className="w-4 h-4 text-gray-500 mr-2 shrink-0" />
+          {categories.map((cat) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 ${
-                activeTab === tab 
-                ? 'bg-primary text-black' 
-                : 'bg-white/5 text-gray-500 border border-white/5 hover:border-white/20 hover:text-white'
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all shrink-0 ${
+                activeCategory === cat 
+                  ? 'bg-primary text-black scale-105 shadow-md shadow-primary/20' 
+                  : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
               }`}
             >
-              {tab}
+              {cat}
             </button>
           ))}
         </div>
 
         {/* Video Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredVideos.map((video, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredVideos.map((vid, idx) => (
             <motion.div
-              key={video.id}
+              key={vid.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="glass-card group cursor-pointer overflow-hidden flex flex-col"
-              onClick={() => setSelectedVideo(video)}
+              transition={{ delay: idx * 0.05 }}
+              onClick={() => setSelectedVideo(vid)}
+              className="glass-card-interactive flex flex-col justify-between overflow-hidden group cursor-pointer"
             >
-              <div className="relative aspect-video overflow-hidden">
-                <img 
-                  src={video.thumbnail} 
-                  alt={video.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 backdrop-blur-md border border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)]">
-                    <Play className="w-8 h-8 text-primary fill-current" />
+              <div>
+                {/* Thumbnail Header */}
+                <div className="relative h-48 overflow-hidden bg-surface">
+                  <img 
+                    src={vid.thumbnail} 
+                    alt={vid.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-black/30 to-transparent"></div>
+                  
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-primary/90 text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Play className="w-5 h-5 fill-black ml-0.5" />
+                    </div>
+                  </div>
+
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className="badge-lime">{vid.category}</span>
+                    {vid.isPremium && (
+                      <span className="badge-blue flex items-center gap-1">
+                        <Crown className="w-3 h-3 text-secondary" /> PRO
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="absolute bottom-3 right-3 text-[10px] font-mono font-bold bg-black/70 text-white px-2 py-0.5 rounded-md border border-white/10">
+                    {vid.duration}
                   </div>
                 </div>
-                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 border border-white/10">
-                  <MonitorPlay className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] font-black uppercase tracking-tighter">{video.type}</span>
+
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="text-lg font-black italic text-white uppercase group-hover:text-primary transition-colors mb-2">
+                    {vid.title}
+                  </h3>
+                  <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-4">
+                    <strong className="text-gray-300">Target Muscles:</strong> {vid.targetMuscles}
+                  </p>
                 </div>
               </div>
 
-              <div className="p-6 flex-1 flex flex-col">
-                <div className="flex items-center gap-4 text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">
-                  <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> {video.duration}</span>
-                  <span className="flex items-center gap-1.5"><BarChart className="w-3 h-3" /> {video.level}</span>
-                  <span className="flex items-center gap-1.5"><Flame className="w-3 h-3 text-orange-500" /> {video.calories} kcal</span>
-                </div>
-                
-                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{video.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed line-clamp-2 mb-6">
-                  {video.description}
-                </p>
-
-                <div className="mt-auto flex justify-between items-center pt-4 border-t border-white/5">
-                  <span className="text-xs font-bold text-primary group-hover:translate-x-1 transition-transform flex items-center gap-2">
-                    START TRAINING <ChevronRight className="w-4 h-4" />
-                  </span>
-                  <div className="flex -space-x-2">
-                    {[1,2,3].map(i => (
-                      <div key={i} className="w-6 h-6 rounded-full border-2 border-surface bg-gray-800 flex items-center justify-center text-[8px] font-bold">
-                        {String.fromCharCode(64 + i)}
-                      </div>
-                    ))}
-                    <div className="w-6 h-6 rounded-full border-2 border-surface bg-primary text-black flex items-center justify-center text-[8px] font-black">+1k</div>
-                  </div>
-                </div>
+              <div className="p-5 pt-0 border-t border-border/50 flex justify-between items-center text-xs font-bold text-gray-400">
+                <span className="text-[10px] uppercase">{vid.level}</span>
+                <span className="text-primary text-[10px] uppercase font-black flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  Watch Execution Cues <ChevronRight className="w-3.5 h-3.5" />
+                </span>
               </div>
             </motion.div>
           ))}
         </div>
 
         {/* Video Player Modal */}
-        <AnimatePresence>
-          {selectedVideo && (
+        {selectedVideo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-surface border border-border"
             >
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="glass-card w-full max-w-5xl overflow-hidden shadow-[0_0_100px_rgba(var(--primary-rgb),0.2)]"
-              >
-                <div className="relative aspect-video bg-black flex items-center justify-center">
-                  <img 
-                    src={selectedVideo.url} 
-                    alt={selectedVideo.title}
-                    className="w-full h-full object-contain"
-                  />
-                  <button 
-                    onClick={() => setSelectedVideo(null)}
-                    className="absolute top-6 right-6 p-3 rounded-full bg-black/50 text-white hover:bg-primary hover:text-black transition-all"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                  <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="px-3 py-1 bg-primary text-black text-[10px] font-black rounded-full uppercase">Now Playing</span>
-                        <span className="text-white/60 text-xs font-bold">{selectedVideo.type} Masterclass</span>
-                      </div>
-                      <h2 className="text-3xl font-black italic text-white uppercase">{selectedVideo.title}</h2>
+              <div className="p-4 border-b border-border flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="badge-lime">{selectedVideo.category}</span>
+                  <h3 className="text-lg font-black italic uppercase text-white">{selectedVideo.title}</h3>
+                </div>
+                <button 
+                  onClick={() => setSelectedVideo(null)}
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Video Player iframe */}
+              <div className="aspect-video w-full bg-black">
+                <iframe 
+                  src={selectedVideo.url} 
+                  title={selectedVideo.title}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+
+              {/* Coaching Cues & Execution Details */}
+              <div className="p-6 space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="glass-card p-5 border-l-4 border-l-primary bg-primary/5">
+                    <div className="text-xs font-black uppercase text-primary mb-2 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4" /> Key Coaching Cues
                     </div>
-                    <div className="flex gap-4">
-                      <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-center min-w-[80px]">
-                        <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Time Left</div>
-                        <div className="text-xl font-mono font-bold text-primary">{selectedVideo.duration}</div>
-                      </div>
+                    <p className="text-xs text-gray-200 leading-relaxed font-medium">
+                      {selectedVideo.cues}
+                    </p>
+                  </div>
+
+                  <div className="glass-card p-5 border-l-4 border-l-red-500 bg-red-500/5">
+                    <div className="text-xs font-black uppercase text-red-400 mb-2 flex items-center gap-1.5">
+                      <Info className="w-4 h-4" /> Common Mistakes to Avoid
                     </div>
+                    <p className="text-xs text-gray-200 leading-relaxed font-medium">
+                      {selectedVideo.mistakes}
+                    </p>
                   </div>
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Featured Section */}
-        <section className="mt-20">
-          <div className="glass-card p-10 bg-gradient-to-r from-primary/20 via-transparent to-transparent flex flex-col md:flex-row items-center justify-between gap-10 border-l-4 border-l-primary">
-            <div className="max-w-xl">
-              <h2 className="text-3xl font-black italic uppercase mb-4 leading-tight">Master Your Technique With Our AI-Powered Guidance</h2>
-              <p className="text-gray-400 leading-relaxed mb-8">
-                Our animated library is designed by world-class Olympic athletes and physical therapists. Focus on the mind-muscle connection and let the rhythm of the animation guide your breath.
-              </p>
-              <div className="flex gap-6">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-bold">100+ Sessions</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MonitorPlay className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-bold">HD Animated Loops</span>
+                <div>
+                  <div className="text-xs font-black uppercase text-gray-400 tracking-wider mb-2">Targeted Muscle Anatomy</div>
+                  <div className="p-4 rounded-xl bg-black/40 border border-border text-xs text-white font-semibold">
+                    {selectedVideo.targetMuscles}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="relative group shrink-0">
-              <div className="absolute -inset-4 bg-primary/20 blur-3xl group-hover:bg-primary/40 transition-all"></div>
-              <div className="relative p-8 rounded-full bg-surface border border-primary/20">
-                <MonitorPlay className="w-20 h-20 text-primary animate-pulse" />
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        )}
+
+        {/* Floating AI Assistant Coach */}
+        <AiChatWidget />
       </main>
     </div>
   );

@@ -28,9 +28,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Seed default users if empty or missing
-        seedUser("Member User", "user@hp.com", "password", "9876543210", "MEMBER");
-        seedUser("Trainer Alex", "trainer@hp.com", "password", "9876543211", "TRAINER");
-        seedUser("Admin System", "admin@hp.com", "password", "9876543212", "ADMIN");
+        seedUser("Member User", "user@hp.com", "password123", "9876543210", "MEMBER");
+        seedUser("Trainer Alex", "trainer@hp.com", "password123", "9876543211", "TRAINER");
+        seedUser("Admin System", "admin@hp.com", "password123", "9876543212", "ADMIN");
 
         // Seed default membership plans
         if (membershipPlanRepository.count() == 0) {

@@ -12,6 +12,8 @@ import ContactPage from './pages/public/ContactPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import RevenueAnalytics from './pages/admin/RevenueAnalytics';
 import MemberManagement from './pages/admin/MemberManagement';
+import SubscriptionsManagement from './pages/admin/SubscriptionsManagement';
+import ContentManagement from './pages/admin/ContentManagement';
 
 // Member Pages
 import MemberDashboard from './pages/member/MemberDashboard';
@@ -25,52 +27,66 @@ import GoalSetup from './pages/member/GoalSetup';
 import TrainerDashboard from './pages/trainer/TrainerDashboard';
 
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Toaster position="top-right" richColors />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/features" element={<FeaturesPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
-        <Route path="/admin/*" element={
-          <Routes>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="analytics" element={<RevenueAnalytics />} />
-            <Route path="members" element={<MemberManagement />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Routes>
-        } />
+          {/* Protected Admin & Staff Routes */}
+          <Route path="/admin/*" element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'TRAINER']}>
+              <Routes>
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="analytics" element={<RevenueAnalytics />} />
+                <Route path="members" element={<MemberManagement />} />
+                <Route path="subscriptions" element={<SubscriptionsManagement />} />
+                <Route path="content" element={<ContentManagement />} />
+                <Route path="*" element={<Navigate to="dashboard" replace />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
 
-        <Route path="/member/*" element={
-          <Routes>
-            <Route path="dashboard" element={<MemberDashboard />} />
-            <Route path="workouts" element={<WorkoutPlans />} />
-            <Route path="diet" element={<DietPlans />} />
-            <Route path="videos" element={<VideoLibrary />} />
-            <Route path="payments" element={<Payments />} />
-            <Route path="goals" element={<GoalSetup />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Routes>
-        } />
+          {/* Protected Member Routes */}
+          <Route path="/member/*" element={
+            <ProtectedRoute allowedRoles={['MEMBER', 'ADMIN', 'TRAINER']}>
+              <Routes>
+                <Route path="dashboard" element={<MemberDashboard />} />
+                <Route path="workouts" element={<WorkoutPlans />} />
+                <Route path="diet" element={<DietPlans />} />
+                <Route path="videos" element={<VideoLibrary />} />
+                <Route path="payments" element={<Payments />} />
+                <Route path="goals" element={<GoalSetup />} />
+                <Route path="*" element={<Navigate to="dashboard" replace />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
 
-        <Route path="/trainer/*" element={
-          <Routes>
-            <Route path="dashboard" element={<TrainerDashboard />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Routes>
-        } />
+          {/* Protected Trainer Routes */}
+          <Route path="/trainer/*" element={
+            <ProtectedRoute allowedRoles={['TRAINER', 'ADMIN']}>
+              <Routes>
+                <Route path="dashboard" element={<TrainerDashboard />} />
+                <Route path="*" element={<Navigate to="dashboard" replace />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }

@@ -6,9 +6,11 @@ import com.healthpoint.entity.Payment;
 import com.healthpoint.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,10 +24,18 @@ public class PaymentController {
     }
 
     @PostMapping("/create-order")
-    public ResponseEntity<?> createOrder(@RequestBody @NonNull PaymentRequest request) {
+    public ResponseEntity<?> createOrder(@RequestBody @NonNull PaymentRequest request, Authentication auth) {
         try {
+            Long userId = request.getUserId();
+            if (auth != null && auth.getPrincipal() instanceof Long) {
+                userId = (Long) auth.getPrincipal();
+            }
+            if (userId == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "UserId is required"));
+            }
+
             Payment payment = paymentService.createPaymentOrder(
-                request.getUserId(),
+                userId,
                 request.getAmount(),
                 request.getCurrency(),
                 request.getPaymentFor(),
@@ -64,20 +74,28 @@ public class PaymentController {
         }
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Payment>> getUserPayments(@PathVariable @NonNull Long userId, Authentication auth) {
+        Long authenticatedId = userId;
+        if (auth != null && auth.getPrincipal() instanceof Long) {
+            authenticatedId = (Long) auth.getPrincipal();
+        }
+        return ResponseEntity.ok(paymentService.getUserPayments(java.util.Objects.requireNonNull(authenticatedId)));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Payment>> getAllPayments() {
+        return ResponseEntity.ok(paymentService.getAllPayments());
+    }
+
     @PostMapping("/webhook")
     public ResponseEntity<?> handleWebhook(@RequestBody String payload,
                                            @RequestHeader("X-Razorpay-Signature") String signature) {
         try {
-            // Verify webhook signature
             boolean isValid = verifyWebhookSignature(payload, signature);
-
             if (!isValid) {
                 return ResponseEntity.status(400).body(Map.of("error", "Invalid signature"));
             }
-
-            // Process webhook
-            // Parse payload and update payment status
-
             return ResponseEntity.ok(Map.of("status", "success"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
@@ -85,7 +103,6 @@ public class PaymentController {
     }
 
     private boolean verifyWebhookSignature(String payload, String signature) {
-        // Implement Razorpay webhook signature verification
         return true;
     }
 }

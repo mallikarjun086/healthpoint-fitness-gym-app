@@ -29,8 +29,11 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false)
     private String role = "MEMBER";
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

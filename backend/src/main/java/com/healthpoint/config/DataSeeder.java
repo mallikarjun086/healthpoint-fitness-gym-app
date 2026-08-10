@@ -29,18 +29,21 @@ public class DataSeeder {
             admin.setEmail("admin@hp.com");
             admin.setPassword(passwordEncoder.encode("password123"));
             admin.setPhoneNumber("+91 9000000001");
+            admin.setRole("ADMIN");
 
             User trainer = new User();
             trainer.setName("Pro Trainer");
             trainer.setEmail("trainer@hp.com");
             trainer.setPassword(passwordEncoder.encode("password123"));
             trainer.setPhoneNumber("+91 9000000002");
+            trainer.setRole("TRAINER");
 
             User member = new User();
             member.setName("Mallikarjun");
             member.setEmail("user@hp.com");
             member.setPassword(passwordEncoder.encode("password123"));
             member.setPhoneNumber("+91 9000000003");
+            member.setRole("MEMBER");
 
             userRepository.saveAll(Objects.requireNonNull(List.of(admin, trainer, member)));
         };

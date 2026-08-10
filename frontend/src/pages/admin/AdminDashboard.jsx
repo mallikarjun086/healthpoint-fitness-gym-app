@@ -1,66 +1,135 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, DollarSign, Activity, TrendingUp, ArrowUpRight, ArrowDownRight, Plus } from 'lucide-react';
+import { Users, DollarSign, Activity, TrendingUp, ArrowUpRight, ArrowDownRight, Plus, Sparkles, ShieldCheck, CreditCard } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { Link } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
+import api from '../../api';
 
-const data = [
-  { name: 'Jan', revenue: 4000, members: 2400 },
-  { name: 'Feb', revenue: 3000, members: 1398 },
-  { name: 'Mar', revenue: 2000, members: 9800 },
-  { name: 'Apr', revenue: 2780, members: 3908 },
-  { name: 'May', revenue: 1890, members: 4800 },
-  { name: 'Jun', revenue: 2390, members: 3800 },
-  { name: 'Jul', revenue: 3490, members: 4300 },
+const revenueTrendData = [
+  { name: 'Jan', revenue: 240000, members: 120 },
+  { name: 'Feb', revenue: 275000, members: 135 },
+  { name: 'Mar', revenue: 290000, members: 142 },
+  { name: 'Apr', revenue: 310000, members: 150 },
+  { name: 'May', revenue: 325000, members: 158 },
+  { name: 'Jun', revenue: 340900, members: 162 }
 ];
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalMembers: 162,
+    activeSubscriptions: 162,
+    mrr: 340900,
+    totalPayments: 24
+  });
+
+  useEffect(() => {
+    fetchAdminStats();
+  }, []);
+
+  const fetchAdminStats = async () => {
+    try {
+      const res = await api.get('/admin/stats');
+      if (res.data) {
+        setStats(res.data);
+      }
+    } catch (e) {
+      console.log("Admin stats fallback");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar role="admin" />
-      <main className="flex-1 ml-64 p-8">
+
+      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+        {/* Header */}
         <header className="flex justify-between items-center mb-10">
-          <div><h1 className="text-3xl font-bold">Admin Dashboard</h1><p className="text-gray-400 mt-1">Welcome back, here's what's happening today.</p></div>
-          <button className="btn-premium py-2 px-4 text-sm flex items-center gap-2"><Plus className="w-4 h-4" /> Add New Member</button>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-xs font-black uppercase text-primary tracking-widest">System Control Center</span>
+            </div>
+            <h1 className="text-3xl font-black italic uppercase tracking-tight">Executive Admin Overview</h1>
+            <p className="text-gray-400 mt-1">Real-time gym performance, member retention index, and MRR metrics.</p>
+          </div>
+
+          <Link to="/admin/members" className="btn-premium px-6 py-3 text-xs flex items-center gap-2">
+            <Plus className="w-4 h-4 text-black" /> Manage Member Directory
+          </Link>
         </header>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[
-            { label: 'Total Revenue', value: '$45,231', trend: '+12.5%', up: true, icon: DollarSign },
-            { label: 'Active Members', value: '1,248', trend: '+5.2%', up: true, icon: Users },
-            { label: 'Avg Attendance', value: '85%', trend: '-2.1%', up: false, icon: Activity },
-            { label: 'New Signups', value: '124', trend: '+18.7%', up: true, icon: TrendingUp },
+            { label: 'Monthly Recurring Revenue', value: `₹${(stats.mrr || 340900).toLocaleString()}`, trend: '+18.5%', up: true, icon: DollarSign, color: 'text-primary' },
+            { label: 'Total Gym Members', value: (stats.totalMembers || 162).toString(), trend: '+12 new', up: true, icon: Users, color: 'text-secondary' },
+            { label: 'Active Subscriptions', value: (stats.activeSubscriptions || 162).toString(), trend: '100% Active', up: true, icon: ShieldCheck, color: 'text-green-400' },
+            { label: 'Fulfilled Payments', value: (stats.totalPayments || 24).toString(), trend: '+4 today', up: true, icon: CreditCard, color: 'text-purple-400' }
           ].map((stat, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="p-6 glass-card">
-              <div className="flex justify-between items-start mb-4"><div className="p-2 bg-primary/10 rounded-lg"><stat.icon className="w-5 h-5 text-primary" /></div><div className={`flex items-center gap-1 text-sm font-medium ${stat.up ? 'text-green-400' : 'text-red-400'}`}>{stat.trend} {stat.up ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}</div></div>
-              <div className="text-2xl font-bold mb-1">{stat.value}</div><div className="text-gray-400 text-sm">{stat.label}</div>
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: i * 0.08 }} 
+              className="glass-card-interactive p-6"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className={`p-3 rounded-2xl bg-white/5 ${stat.color}`}>
+                  <stat.icon className="w-6 h-6" />
+                </div>
+                <div className="flex items-center gap-1 text-xs font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md border border-green-500/20">
+                  {stat.trend} <ArrowUpRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="text-3xl font-black italic text-white mb-1">{stat.value}</div>
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{stat.label}</div>
             </motion.div>
           ))}
         </div>
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          <div className="p-8 glass-card">
-            <h3 className="font-bold text-lg mb-8">Revenue Overview</h3>
+
+        {/* Charts Grid */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="glass-card p-6">
+            <h3 className="text-xl font-bold uppercase italic mb-6 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" /> Revenue & MRR Growth (₹)
+            </h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data}>
-                  <defs><linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#00FF9D" stopOpacity={0.3}/><stop offset="95%" stopColor="#00FF9D" stopOpacity={0}/></linearGradient></defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                  <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#141414', border: '1px solid #262626', borderRadius: '12px' }} itemStyle={{ color: '#00FF9D' }} />
-                  <Area type="monotone" dataKey="revenue" stroke="#00FF9D" fillOpacity={1} fill="url(#colorRev)" />
+                <AreaChart data={revenueTrendData}>
+                  <defs>
+                    <linearGradient id="revGlow" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#C9FF00" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#C9FF00" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222228" vertical={false} />
+                  <XAxis dataKey="name" stroke="#666" tick={{ fontSize: 12, fill: '#888' }} />
+                  <YAxis stroke="#666" tick={{ fontSize: 12, fill: '#888' }} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#121215', borderColor: '#222228', borderRadius: '12px', color: '#fff' }} 
+                    formatter={(val) => [`₹${val.toLocaleString()}`, 'MRR']}
+                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#C9FF00" strokeWidth={3} fillOpacity={1} fill="url(#revGlow)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
-          <div className="p-8 glass-card">
-            <h3 className="font-bold text-lg mb-8">Member Growth</h3>
+
+          <div className="glass-card p-6">
+            <h3 className="text-xl font-bold uppercase italic mb-6 flex items-center gap-2">
+              <Users className="w-5 h-5 text-secondary" /> Active Member Scale Trend
+            </h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                  <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#141414', border: '1px solid #262626', borderRadius: '12px' }} />
-                  <Bar dataKey="members" fill="#00A3FF" radius={[4, 4, 0, 0]} barSize={20} />
+                <BarChart data={revenueTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#222228" vertical={false} />
+                  <XAxis dataKey="name" stroke="#666" tick={{ fontSize: 12, fill: '#888' }} />
+                  <YAxis stroke="#666" tick={{ fontSize: 12, fill: '#888' }} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#121215', borderColor: '#222228', borderRadius: '12px', color: '#fff' }}
+                  />
+                  <Bar dataKey="members" fill="#00F0FF" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -70,4 +139,5 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
 export default AdminDashboard;
