@@ -86,10 +86,12 @@ public class GoalPlanService {
 
     // ---------- MACRO CALCULATOR ----------
     private Map<String, Integer> calculateMacros(double weightKg, double bmi, String goal, String exp) {
+        String safeGoal = (goal != null && !goal.trim().isEmpty()) ? goal.toUpperCase() : "AESTHETIC";
+        String safeExp = (exp != null) ? exp : "INTERMEDIATE";
         double baseCalories = weightKg * 30;
         double proteinMultiplier, carbMultiplier, fatMultiplier;
 
-        switch (goal.toUpperCase()) {
+        switch (safeGoal) {
             case "COMPETITION":
                 baseCalories *= 1.15;
                 proteinMultiplier = 2.5; carbMultiplier = 4.0; fatMultiplier = 0.8;
@@ -114,8 +116,8 @@ public class GoalPlanService {
                 proteinMultiplier = 1.8; carbMultiplier = 3.5; fatMultiplier = 0.9;
         }
 
-        if ("ADVANCED".equalsIgnoreCase(exp)) baseCalories *= 1.1;
-        else if ("BEGINNER".equalsIgnoreCase(exp)) baseCalories *= 0.95;
+        if ("ADVANCED".equalsIgnoreCase(safeExp)) baseCalories *= 1.1;
+        else if ("BEGINNER".equalsIgnoreCase(safeExp)) baseCalories *= 0.95;
 
         int protein = (int)(weightKg * proteinMultiplier);
         int carbs = (int)(weightKg * carbMultiplier);
@@ -127,9 +129,10 @@ public class GoalPlanService {
 
     // ---------- WORKOUT PLAN GENERATOR ----------
     private String generateWorkoutPlan(String goal, String experience, String sport) {
+        String safeGoal = (goal != null && !goal.trim().isEmpty()) ? goal.toUpperCase() : "AESTHETIC";
         String[][] plan;
 
-        switch (goal.toUpperCase()) {
+        switch (safeGoal) {
             case "COMPETITION":
                 plan = getCompetitionPlan(experience);
                 break;

@@ -1,154 +1,151 @@
 import { motion } from 'framer-motion';
 import { 
   Check, 
-  Dumbbell, 
-  Zap, 
-  ShieldCheck, 
-  ZapOff,
-  Star,
-  ArrowRight,
-  Sparkles
+  Star, 
+  ArrowRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Navbar from '../../components/layout/Navbar';
+import TiltCard from '../../components/ui/TiltCard';
+import CountUp from '../../components/ui/CountUp';
+import { Sparkles3D, Shield3D, Dumbbell3D, Zap3D } from '../../components/ui/Icon3D';
 
 const PricingPage = () => {
   const plans = [
     {
-      name: "Basic",
-      price: "999",
+      name: "Basic Access",
+      price: 999,
       period: "/month",
-      description: "Essential tools for those just starting their fitness journey.",
+      description: "Essential tools for individual athletes starting structured programming.",
       features: [
         "Standard Workout Library",
         "Basic Diet Guidelines",
-        "Community Access",
-        "Mobile App Access"
+        "Community Standings Access",
+        "Mobile Digital Pass"
       ],
-      cta: "Start Free",
-      premium: false
+      cta: "Start Free Trial",
+      popular: false
     },
     {
-      name: "Elite",
-      price: "2,999",
+      name: "Elite Performance",
+      price: 2999,
       period: "/month",
-      description: "Our most popular plan for serious athletes and bodybuilders.",
+      description: "Signature tier for serious athletes with AI blueprints & coach messaging.",
       features: [
-        "Everything in Basic",
-        "Animated Form Masterclasses",
-        "Personalized Macros (Veg/Non-Veg)",
-        "PDF Diet Exports",
-        "Trainer Chat Support",
-        "Advanced Analytics"
+        "Everything in Basic Access",
+        "AI Periodized Split Architect",
+        "Personalized Macro Balance",
+        "Biomechanical Muscle Heatmap",
+        "Dedicated Master Trainer Chat",
+        "Advanced Volume Telemetry"
       ],
-      cta: "Join Elite",
-      premium: true,
+      cta: "Join Elite Club",
       popular: true
     },
     {
-      name: "Pro",
-      price: "1,499",
+      name: "Pro Conditioning",
+      price: 1499,
       period: "/month",
-      description: "Intermediate protocols for consistent performance gains.",
+      description: "Intermediate protocols for consistent progressive overload gains.",
       features: [
-        "Everything in Basic",
-        "Custom Workout Creator",
+        "Everything in Basic Access",
+        "Custom Split Creator",
         "Advanced Progress Tracking",
-        "Workout Log History"
+        "Workout Log History & Notes"
       ],
       cta: "Go Pro",
-      premium: false
+      popular: false
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background text-white pt-32 pb-20 px-6">
-      {/* Background Aura */}
-      <div className="fixed inset-0 overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[150px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[150px] rounded-full"></div>
-      </div>
+    <div className="min-h-screen bg-background text-text-primary pt-28 pb-20 px-6">
+      <Navbar />
 
-      <header className="max-w-4xl mx-auto text-center mb-20">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6"
-        >
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Invest in Yourself</span>
-        </motion.div>
-        <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6">
-          Premium <span className="text-primary">Performance</span>.<br />Transparent Pricing.
+      {/* Header */}
+      <header className="max-w-4xl mx-auto text-center mb-16">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-elevated border border-border mb-4">
+          <Sparkles3D size={16} />
+          <span className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Invest in Your Performance</span>
+        </div>
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+          Transparent Membership Tiers
         </h1>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-          Choose the level of guidance that matches your ambition. No hidden fees, just results.
+        <p className="text-text-secondary text-sm max-w-xl mx-auto leading-relaxed">
+          Choose the level of guidance and telemetry that matches your athletic ambition. Cancel anytime with zero contracts.
         </p>
       </header>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+      {/* Pricing Cards */}
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {plans.map((plan, i) => (
-          <motion.div
+          <TiltCard
             key={plan.name}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className={`relative glass-card p-10 flex flex-col h-full transition-all duration-500 hover:translate-y-[-10px] ${
-              plan.popular ? 'border-primary shadow-[0_0_50px_rgba(var(--primary-rgb),0.15)] ring-1 ring-primary/50 scale-105' : 'hover:border-white/20'
+            maxTilt={plan.popular ? 4 : 3}
+            className={`panel p-8 flex flex-col justify-between ${
+              plan.popular ? 'border-primary/50 bg-surface-elevated shadow-hero' : ''
             }`}
           >
-            {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-black px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                <Star className="w-3 h-3 fill-current" /> Most Popular
-              </div>
-            )}
-
-            <div className="mb-8">
-              <h3 className="text-2xl font-black italic uppercase mb-2">{plan.name}</h3>
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black">₹{plan.price}</span>
-                <span className="text-gray-500 font-bold">{plan.period}</span>
-              </div>
-              <p className="text-gray-400 text-sm mt-4 leading-relaxed">
-                {plan.description}
-              </p>
-            </div>
-
-            <div className="flex-1 space-y-4 mb-10">
-              {plan.features.map((feature) => (
-                <div key={feature} className="flex items-start gap-3">
-                  <div className="mt-1 p-0.5 rounded-full bg-primary/10">
-                    <Check className="w-3 h-3 text-primary" />
-                  </div>
-                  <span className="text-sm text-gray-300 font-medium">{feature}</span>
+            <div>
+              {plan.popular && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-semibold uppercase tracking-wider mb-4">
+                  <Star className="w-3 h-3 fill-primary" /> Most Popular
                 </div>
-              ))}
+              )}
+
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-text-primary mb-1">{plan.name}</h3>
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-3xl stat-number text-text-primary">
+                    <CountUp value={plan.price} prefix="₹" />
+                  </span>
+                  <span className="text-text-secondary text-xs font-medium">{plan.period}</span>
+                </div>
+                <p className="text-text-secondary text-xs mt-3 leading-relaxed">
+                  {plan.description}
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8 pt-4 border-t border-border">
+                {plan.features.map((feature) => (
+                  <div key={feature} className="flex items-start gap-2.5 text-xs">
+                    <div className="mt-0.5 p-0.5 rounded-full bg-primary/10 text-primary shrink-0">
+                      <Check className="w-3 h-3 text-primary" />
+                    </div>
+                    <span className="text-text-secondary">{feature}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <Link 
               to="/register" 
-              className={`w-full py-5 rounded-2xl text-center text-sm font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group ${
+              className={`w-full py-3 rounded-xl text-center text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
                 plan.popular 
-                ? 'bg-primary text-black hover:scale-105 shadow-xl' 
-                : 'bg-white/5 border border-white/10 hover:border-white/30'
+                ? 'btn-hero' 
+                : 'btn-secondary'
               }`}
             >
-              {plan.cta} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>{plan.cta}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </motion.div>
+          </TiltCard>
         ))}
       </div>
 
       {/* Trust Badges */}
-      <div className="max-w-4xl mx-auto mt-32 grid grid-cols-2 md:grid-cols-4 gap-8 text-center border-t border-white/5 pt-20">
+      <div className="max-w-4xl mx-auto mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 text-center border-t border-border pt-12">
         {[
-          { icon: ShieldCheck, label: "Secure Payments" },
-          { icon: Zap, label: "Instant Access" },
-          { icon: ZapOff, label: "No Contracts" },
-          { icon: Dumbbell, label: "Pro Content" }
+          { IconComponent: Shield3D, label: "Secure Payments" },
+          { IconComponent: Zap3D, label: "Instant Access" },
+          { IconComponent: Sparkles3D, label: "AI Blueprints" },
+          { IconComponent: Dumbbell3D, label: "Pro Content" }
         ].map((badge) => (
-          <div key={badge.label} className="flex flex-col items-center gap-3">
-            <badge.icon className="w-6 h-6 text-gray-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{badge.label}</span>
+          <div key={badge.label} className="flex flex-col items-center gap-2">
+            <div className="p-2 rounded-xl bg-surface-elevated border border-border">
+              <badge.IconComponent size={20} />
+            </div>
+            <span className="text-[11px] font-medium text-text-secondary">{badge.label}</span>
           </div>
         ))}
       </div>

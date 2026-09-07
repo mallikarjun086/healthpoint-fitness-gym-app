@@ -76,7 +76,7 @@ const MemberManagement = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar role="admin" />
+      <Sidebar />
 
       <main className="flex-1 ml-64 p-8">
         <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

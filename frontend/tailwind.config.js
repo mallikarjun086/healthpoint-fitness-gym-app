@@ -7,28 +7,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#C9FF00", // Electric Lime
-        "primary-glow": "rgba(201, 255, 0, 0.4)",
-        secondary: "#00F0FF", // Cyber Blue
-        background: "#09090B", // Obsidian Black
-        surface: "#121215", // Dark Surface Card
-        border: "#222228", // Surface Border
+        background: "#0C0C0E", // Warm near-black
+        surface: "#18181B", // Matte dark surface
+        "surface-elevated": "#202024",
+        "surface-hover": "#27272D",
+        border: "#27272A", // Subtle hairline divider
+        "border-light": "#3F3F46",
+        primary: "#5B6EFF", // Functional cobalt blue
+        "primary-dark": "#4755E8",
+        "accent-violet": "#A855F7", // Signature hero accent
+        "text-primary": "#F2F2F0", // Warm off-white
+        "text-secondary": "#8C8C91", // Slate secondary
+        "text-muted": "#52525B",
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'Inter', 'sans-serif'],
       },
       backgroundImage: {
-        'gradient-premium': 'linear-gradient(135deg, #C9FF00 0%, #00F0FF 100%)',
-        'gradient-dark': 'linear-gradient(180deg, rgba(18,18,21,0.8) 0%, rgba(9,9,11,0.95) 100%)',
-        'gradient-glow': 'radial-gradient(circle at center, rgba(201,255,0,0.15) 0%, transparent 70%)',
+        'gradient-hero': 'linear-gradient(135deg, #5B6EFF 0%, #A855F7 100%)',
+        'gradient-hero-subtle': 'linear-gradient(135deg, rgba(91, 110, 255, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%)',
+        'gradient-surface': 'linear-gradient(180deg, #18181B 0%, #111113 100%)',
+        'gradient-pass': 'linear-gradient(135deg, #222228 0%, #16161A 50%, #241C30 100%)',
       },
-      animation: {
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow-pulse': 'glow 3s ease-in-out infinite alternate',
+      boxShadow: {
+        'panel': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+        'hero': '0 10px 30px -5px rgba(91, 110, 255, 0.25)',
+        'pass': '0 20px 40px -10px rgba(0, 0, 0, 0.7)',
       },
-      keyframes: {
-        glow: {
-          '0%': { boxShadow: '0 0 15px rgba(201, 255, 0, 0.2)' },
-          '100%': { boxShadow: '0 0 35px rgba(201, 255, 0, 0.6)' },
-        }
-      }
     },
   },
   plugins: [],

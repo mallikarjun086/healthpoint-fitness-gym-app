@@ -4,54 +4,147 @@
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased selection:bg-primary selection:text-black;
+    @apply bg-background text-text-primary antialiased selection:bg-primary/30 selection:text-white;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0C0C0E;
+    color: #F2F2F0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight text-text-primary;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-surface/70 backdrop-blur-xl border border-border rounded-2xl shadow-xl transition-all duration-300;
+  /* Flat, Matte Panels with Hairline Dividers */
+  .panel {
+    @apply bg-surface border border-border rounded-2xl transition-all duration-200;
   }
 
-  .glass-card-interactive {
-    @apply bg-surface/70 backdrop-blur-xl border border-border rounded-2xl shadow-xl transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10;
+  .panel-elevated {
+    @apply bg-surface-elevated border border-border rounded-2xl shadow-panel;
   }
-  
-  .btn-premium {
-    @apply bg-gradient-premium text-black font-black uppercase tracking-wider px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 active:scale-95 disabled:opacity-50 disabled:hover:scale-100;
+
+  .panel-interactive {
+    @apply bg-surface border border-border rounded-2xl transition-all duration-200 hover:border-border-light hover:bg-surface-elevated;
+  }
+
+  /* Scoreboard numbers for athletic stats */
+  .stat-number {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    @apply font-extrabold tracking-tight text-text-primary;
+  }
+
+  /* Tactile Physical Buttons with 3D Depth Feedback */
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-dark text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all duration-200 border-t border-white/20 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/25 active:translate-y-0 active:scale-[0.97] active:shadow-inner disabled:opacity-50 disabled:pointer-events-none inline-flex items-center justify-center gap-2;
+  }
+
+  .btn-hero {
+    @apply bg-gradient-hero text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 border-t border-white/25 hover:-translate-y-0.5 hover:opacity-95 hover:shadow-hero active:translate-y-0 active:scale-[0.97] disabled:opacity-50 inline-flex items-center justify-center gap-2 shadow-panel;
   }
 
   .btn-secondary {
-    @apply bg-white/5 border border-white/10 text-white font-bold px-6 py-3 rounded-xl transition-all duration-300 hover:bg-white/10 hover:border-white/20 active:scale-95;
+    @apply bg-surface-elevated hover:bg-surface-hover border border-border hover:border-border-light text-text-primary font-medium text-xs px-5 py-2.5 rounded-xl transition-all duration-200 border-t border-white/10 hover:-translate-y-0.5 hover:shadow-panel active:translate-y-0 active:scale-[0.97] disabled:opacity-50 inline-flex items-center justify-center gap-2;
   }
 
-  .gradient-text-lime {
-    @apply bg-gradient-to-r from-primary via-lime-300 to-secondary bg-clip-text text-transparent;
+  .btn-ghost {
+    @apply hover:bg-surface-elevated text-text-secondary hover:text-text-primary font-medium text-xs px-4 py-2 rounded-xl transition-all duration-150 active:scale-[0.97] inline-flex items-center justify-center gap-2;
+  }
+
+  /* Fast, Clean Table Row Hover Micro-interactions */
+  .table-row-hover {
+    @apply transition-colors duration-150 hover:bg-surface-elevated/70;
+  }
+
+  /* Refined Badges (No Neon) */
+  .badge-accent {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/10 text-primary border border-primary/20 inline-flex items-center gap-1;
+  }
+
+  .badge-hero {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-violet/10 text-accent-violet border border-accent-violet/20 inline-flex items-center gap-1;
+  }
+
+  .badge-muted {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/5 text-text-secondary border border-border inline-flex items-center gap-1;
+  }
+
+  .badge-success {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1;
+  }
+
+  /* Compatibility mappings for legacy classes to adhere to new design system */
+  .glass-card {
+    @apply panel;
+  }
+
+  .glass-card-interactive {
+    @apply panel-interactive;
+  }
+
+  .glass-card-neon {
+    @apply panel border-primary/20 hover:border-primary/40;
+  }
+
+  .btn-premium {
+    @apply btn-hero;
+  }
+
+  .btn-cyan {
+    @apply btn-primary;
   }
 
   .badge-lime {
-    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20;
+    @apply badge-accent;
+  }
+
+  .badge-cyan {
+    @apply badge-accent;
   }
 
   .badge-blue {
-    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-secondary/10 text-secondary border border-secondary/20;
+    @apply badge-hero;
+  }
+
+  .gradient-text-lime {
+    @apply text-text-primary;
+  }
+
+  .gradient-text-cyber {
+    @apply bg-gradient-hero bg-clip-text text-transparent;
   }
 
   .glow-border {
-    @apply border border-primary/40 shadow-lg shadow-primary/10;
+    @apply border-border-light;
+  }
+
+  .glow-cyan {
+    @apply border-primary/30;
   }
 }
 
+/* Hairline dividers */
+.divider {
+  @apply h-[1px] w-full bg-border;
+}
+
+/* Restrained, non-distracting scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-background;
+  background: #0C0C0E;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full hover:bg-primary/50 transition-colors;
+  background: #27272A;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3F3F46;
 }

@@ -18,6 +18,9 @@ public class RazorpayService {
     @Value("${razorpay.key.id}")
     private String keyId;
 
+    @Value("${razorpay.key.secret}")
+    private String keySecret;
+
     public RazorpayService(RazorpayClient razorpayClient) {
         this.razorpayClient = razorpayClient;
     }
@@ -34,6 +37,6 @@ public class RazorpayService {
     public boolean verifyPayment(String orderId, String paymentId, String signature) throws RazorpayException {
         String payload = orderId + "|" + paymentId;
 
-        return Utils.verifySignature(payload, signature, keyId);
+        return Utils.verifySignature(payload, signature, keySecret);
     }
 }

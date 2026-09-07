@@ -34,7 +34,25 @@ const DietPlans = () => {
         setProfile(res.data);
         try {
           const parsed = JSON.parse(res.data.dietPlanJson);
-          setDietMeals(parsed);
+          const normalized = Array.isArray(parsed) ? parsed.map(m => {
+            if (m.name && Array.isArray(m.items)) {
+              const cals = m.items.reduce((s, i) => s + (parseFloat(i.calories) || 0), 0);
+              const prot = m.items.reduce((s, i) => s + (parseFloat(i.protein) || 0), 0);
+              const itemsStr = m.items.map(i => `${i.food} (${i.quantity || ''})`).join(', ');
+              return {
+                mealName: m.name,
+                timing: m.time || 'Daily',
+                description: `${m.name} — Assigned by Master Trainer`,
+                calories: cals,
+                protein: prot,
+                carbs: Math.round(cals * 0.45 / 4),
+                fat: Math.round(cals * 0.25 / 9),
+                items: itemsStr
+              };
+            }
+            return m;
+          }) : [];
+          setDietMeals(normalized);
         } catch (e) {
           console.error("Error parsing dietPlanJson", e);
         }
@@ -78,7 +96,7 @@ HYDRATION TARGET: 3.8 Liters Water + Electrolytes
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar role="member" />
+      <Sidebar />
 
       <main className="flex-1 ml-64 p-8 relative overflow-hidden">
         <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

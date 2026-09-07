@@ -11,4 +11,5 @@ public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
     Double getAverageCompletionSince(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
 
     List<WorkoutLog> findByUserIdOrderByCompletedAtDesc(Long userId);
+    List<WorkoutLog> findTop5ByUserIdOrderByCompletedAtDesc(Long userId);
 }

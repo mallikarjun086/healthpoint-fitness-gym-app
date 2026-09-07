@@ -30,7 +30,7 @@ const RevenueAnalytics = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar role="admin" />
+      <Sidebar />
 
       <main className="flex-1 ml-64 p-8">
         <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -98,19 +98,19 @@ const RevenueAnalytics = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={revenueData}>
                   <defs>
-                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#c9ff00" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#c9ff00" stopOpacity={0}/>
+                    <linearGradient id="colorRevFixed" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#5B6EFF" stopOpacity={0.35}/>
+                      <stop offset="95%" stopColor="#A855F7" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                  <XAxis dataKey="month" stroke="#666" fontSize={12} />
-                  <YAxis stroke="#666" fontSize={12} tickFormatter={(v) => `₹${v/1000}k`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272A" vertical={false} />
+                  <XAxis dataKey="month" stroke="#52525B" fontSize={12} tick={{ fill: '#8C8C91' }} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#52525B" fontSize={12} tick={{ fill: '#8C8C91' }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${v/1000}k`} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#111', borderColor: '#333', borderRadius: '12px' }}
+                    contentStyle={{ backgroundColor: '#18181B', borderColor: '#27272A', borderRadius: '12px', color: '#F2F2F0', fontSize: '12px' }}
                     formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#c9ff00" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                  <Area type="monotone" dataKey="revenue" stroke="#5B6EFF" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevFixed)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

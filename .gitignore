@@ -32,4 +32,10 @@ build/
 ### VS Code ###
 .vscode/
 frontend/node_modules/
+node_modules/
+frontend/dist/
+dist/
+.env
+*.log
 run_log*.txt
+

@@ -17,10 +17,10 @@ import { toast } from 'sonner';
 
 const ContentManagement = () => {
   const [contents, setContents] = useState([
-    { id: 1, title: 'Mastering the Barbell Squat', category: 'Strength Training', duration: '12:45', views: '1.2k', videoUrl: 'https://www.youtube.com/embed/g2bOwQ5M-x8', thumbnail: '🏋️' },
-    { id: 2, title: 'HIIT Cardio Fat Burner', category: 'Fat Loss', duration: '20:00', views: '3.4k', videoUrl: 'https://www.youtube.com/embed/ml6cT4AZdqI', thumbnail: '🔥' },
-    { id: 3, title: 'Post-Workout Mobility & Recovery', category: 'Flexibility', duration: '15:30', views: '890', videoUrl: 'https://www.youtube.com/embed/L_xrDAtykMI', thumbnail: '🧘' },
-    { id: 4, title: 'Nutrition Masterclass: Macro Counting', category: 'Diet & Nutrition', duration: '25:10', views: '2.1k', videoUrl: 'https://www.youtube.com/embed/3n0F46ZtW9s', thumbnail: '🥗' }
+    { id: 1, title: 'Mastering the Barbell Squat', category: 'Strength Training', duration: '12:45', views: '1.2k', videoUrl: 'https://www.youtube.com/embed/g2bOwQ5M-x8', thumbnail: 'https://img.youtube.com/vi/g2bOwQ5M-x8/hqdefault.jpg' },
+    { id: 2, title: 'HIIT Cardio Fat Burner', category: 'Fat Loss', duration: '20:00', views: '3.4k', videoUrl: 'https://www.youtube.com/embed/ml6cT4AZdqI', thumbnail: 'https://img.youtube.com/vi/ml6cT4AZdqI/hqdefault.jpg' },
+    { id: 3, title: 'Post-Workout Mobility & Recovery', category: 'Flexibility', duration: '15:30', views: '890', videoUrl: 'https://www.youtube.com/embed/L_xrDAtykMI', thumbnail: 'https://img.youtube.com/vi/L_xrDAtykMI/hqdefault.jpg' },
+    { id: 4, title: 'Nutrition Masterclass: Macro Counting', category: 'Diet & Nutrition', duration: '25:10', views: '2.1k', videoUrl: 'https://www.youtube.com/embed/3n0F46ZtW9s', thumbnail: 'https://img.youtube.com/vi/3n0F46ZtW9s/hqdefault.jpg' }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +42,7 @@ const ContentManagement = () => {
       toast.error('Please enter title and video URL');
       return;
     }
+    const ytId = newVideo.videoUrl.match(/(?:embed\/|v=|youtu\.be\/)([^?&\/]+)/)?.[1] || '';
     const item = {
       id: Date.now(),
       title: newVideo.title,
@@ -49,7 +50,7 @@ const ContentManagement = () => {
       duration: newVideo.duration || '10:00',
       views: '0',
       videoUrl: newVideo.videoUrl,
-      thumbnail: '🎬'
+      thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : ''
     };
     setContents(prev => [item, ...prev]);
     setIsModalOpen(false);
@@ -64,7 +65,7 @@ const ContentManagement = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar role="admin" />
+      <Sidebar />
 
       <main className="flex-1 ml-64 p-8">
         <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -120,14 +121,24 @@ const ContentManagement = () => {
               className="glass-card overflow-hidden group hover:border-primary/40 transition-all flex flex-col justify-between"
             >
               <div className="p-6">
-                <div className="aspect-video bg-white/5 rounded-xl flex items-center justify-center text-4xl mb-4 relative group-hover:scale-[1.02] transition-transform">
-                  <span>{item.thumbnail}</span>
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                    <div className="w-12 h-12 rounded-full bg-primary text-black flex items-center justify-center">
-                      <Play className="w-5 h-5 fill-current ml-0.5" />
+                <div className="aspect-video bg-surface-elevated rounded-xl mb-4 relative group-hover:scale-[1.02] transition-transform overflow-hidden border border-border">
+                  {item.thumbnail ? (
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }}
+                    />
+                  ) : null}
+                  <div className="absolute inset-0 bg-surface-elevated flex items-center justify-center" style={{ display: item.thumbnail ? 'none' : 'flex' }}>
+                    <Film className="w-8 h-8 text-text-muted" />
+                  </div>
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-hero">
+                      <Play className="w-5 h-5 fill-white text-white ml-0.5" />
                     </div>
                   </div>
-                  <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/80 rounded text-[10px] font-bold">
+                  <span className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/80 rounded text-[10px] font-bold text-white">
                     {item.duration}
                   </span>
                 </div>

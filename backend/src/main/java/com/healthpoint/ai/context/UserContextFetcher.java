@@ -21,7 +21,7 @@ public class UserContextFetcher {
         int score = consistencyScoringService.calculateConsistencyScore(userId);
         String consistencyLabel = consistencyScoringService.getConsistencyInterpretation(score);
         
-        List<ProgressLog> recentLogs = progressLogRepo.findTop5ByUserIdOrderByLoggedDateDesc(userId);
+        List<ProgressLog> recentLogs = progressLogRepo.findTop5ByUserIdOrderByLogDateDesc(userId);
         StringBuilder progressStr = new StringBuilder();
         if (recentLogs.isEmpty()) {
             progressStr.append("No recent progress data logged.");

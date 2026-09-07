@@ -1,25 +1,28 @@
-# Use Eclipse Temurin JDK 21 (matches your project)
-FROM eclipse-temurin:21-jdk-alpine
+# Build Stage
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 
-# Set working directory
+WORKDIR /build
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Production Runtime Stage
+FROM eclipse-temurin:21-jre-alpine
+
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
+# Create non-root application user for container security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Download dependencies (cached layer)
-RUN ./mvnw dependency:go-offline -B
+COPY --from=builder /build/target/healthpoint-fitness-1.0.0.jar app.jar
 
-# Copy source code
-COPY src ./src
+USER appuser
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
+EXPOSE 8085
 
-# Expose port
-EXPOSE 8080
+ENV PORT=8085
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "target/healthpoint-fitness-1.0.0.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]

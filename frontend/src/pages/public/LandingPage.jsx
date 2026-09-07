@@ -1,170 +1,199 @@
 import { motion } from 'framer-motion';
 import { 
   ArrowRight, 
-  Play, 
-  Users, 
-  Trophy, 
-  Zap, 
-  ShieldCheck, 
-  Dumbbell, 
-  Sparkles,
-  Bot,
-  CreditCard,
-  Flame,
-  Activity,
-  CheckCircle2,
-  Lock
+  Dumbbell
 } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
+import HeroCanvas3D from '../../components/common/HeroCanvas3D';
 import { Link } from 'react-router-dom';
+import TiltCard from '../../components/ui/TiltCard';
+import { Sparkles3D, Chart3D, Dumbbell3D } from '../../components/ui/Icon3D';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-background text-white overflow-x-hidden selection:bg-primary selection:text-black">
+    <div className="min-h-screen bg-background text-text-primary overflow-x-hidden selection:bg-primary/30 selection:text-white">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-24 lg:pt-48 lg:pb-36 overflow-hidden">
-        {/* Background Glow Orbs */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -z-10 w-[700px] h-[700px] bg-primary/10 blur-[160px] rounded-full animate-pulse-slow" />
-        <div className="absolute top-1/3 right-10 -z-10 w-[400px] h-[400px] bg-secondary/10 blur-[140px] rounded-full" />
+      {/* =========================================================
+          HERO SECTION — Asymmetric, Oversized, Off-Center Architecture
+         ========================================================= */}
+      <section className="relative min-h-[92vh] lg:min-h-[100vh] flex items-center pt-24 lg:pt-0 overflow-hidden border-b border-border">
+        
+        {/* Subtle Dark Atmospheric Aura (Fades in 0-0.3s) */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[160px] pointer-events-none -z-10" 
+        />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-accent-violet/10 rounded-full blur-[180px] pointer-events-none -z-10" 
+        />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8 }}
-          >
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass-card border-primary/30 text-primary text-xs font-black uppercase tracking-widest mb-8 glow-border">
-              <Zap className="w-4 h-4 fill-primary animate-bounce" /> Enterprise Gym SaaS & Multi-Agent AI Platform
+        {/* 3D OBJECT — Breaks the frame, bleeds off right edge & overlaps text (Fades/scales in 0.2-0.9s) */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.88, x: 40 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          transition={{ duration: 1.0, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute top-0 right-[-12%] lg:right-[-6%] w-[75%] sm:w-[65%] lg:w-[58%] h-full flex items-center justify-center pointer-events-none z-0"
+        >
+          <HeroCanvas3D />
+        </motion.div>
+
+        {/* HERO CONTENT CONTAINER — Left Asymmetric Anchor (~55% width) */}
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full relative z-10 py-16 lg:py-24">
+          <div className="max-w-2xl lg:max-w-3xl space-y-8">
+            
+            {/* Oversized Headline with Staggered Line-by-Line Reveal (0.5-1.2s) */}
+            <div className="space-y-1">
+              {/* Line 1 */}
+              <div className="overflow-hidden">
+                <motion.h1 
+                  initial={{ y: "110%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.85, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-5xl sm:text-7xl lg:text-[5.75rem] font-black tracking-[-0.035em] text-text-primary leading-[0.96] block"
+                >
+                  Where Human
+                </motion.h1>
+              </div>
+
+              {/* Line 2 */}
+              <div className="overflow-hidden">
+                <motion.h1 
+                  initial={{ y: "110%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.85, delay: 0.58, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-5xl sm:text-7xl lg:text-[5.75rem] font-black tracking-[-0.035em] text-text-primary leading-[0.96] block"
+                >
+                  Biomechanics
+                </motion.h1>
+              </div>
+
+              {/* Line 3 */}
+              <div className="overflow-hidden">
+                <motion.h1 
+                  initial={{ y: "110%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.85, delay: 0.70, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-5xl sm:text-7xl lg:text-[5.75rem] font-black tracking-[-0.035em] leading-[0.96] block bg-gradient-to-r from-text-primary via-text-primary to-text-secondary bg-clip-text text-transparent"
+                >
+                  Meets Intelligence.
+                </motion.h1>
+              </div>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black italic uppercase tracking-tighter mb-8 leading-none">
-              TRANSFORM YOUR <br />
-              <span className="gradient-text-lime">FITNESS EVOLUTION</span>
-            </h1>
+            {/* Subheading (Fades in 0.9-1.3s) */}
+            <motion.p 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.9, ease: "easeOut" }}
+              className="text-base sm:text-lg text-text-secondary max-w-lg font-normal leading-relaxed tracking-tight"
+            >
+              The unified platform connecting person-specific hypertrophy splits, live progressive overload telemetry, and automated facility operations.
+            </motion.p>
 
-            <p className="text-gray-400 text-base sm:text-lg lg:text-xl max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
-              The ultimate enterprise management platform for elite gym facilities, coaches, and athletes. Powered by person-specific AI hypertrophy splits, live volume load analytics, and Razorpay automated billing.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-16">
-              <Link to="/register" className="btn-premium w-full sm:w-auto px-8 py-4 text-xs flex items-center justify-center gap-2 shadow-2xl shadow-primary/30">
-                Start 14-Day Pro Access <ArrowRight className="w-4 h-4 text-black" />
+            {/* Understated Single Action CTA (Fades in 1.05-1.4s) */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 1.05, ease: "easeOut" }}
+              className="pt-2 flex items-center gap-6"
+            >
+              <Link 
+                to="/register" 
+                className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-text-primary text-background font-semibold text-xs hover:bg-white hover:shadow-xl transition-all duration-300"
+              >
+                <span>Start 14-Day Free Access</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
 
-              <Link to="/login" className="btn-secondary w-full sm:w-auto px-8 py-4 text-xs flex items-center justify-center gap-2">
-                <Lock className="w-4 h-4 text-primary" /> Live Demo Portal Sign In
+              <Link 
+                to="/login"
+                className="group text-xs font-medium text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1.5 py-2"
+              >
+                <span>Explore Live Portal</span>
+                <span className="text-text-muted group-hover:text-text-primary transition-transform duration-200 group-hover:translate-x-0.5">→</span>
               </Link>
-            </div>
+            </motion.div>
 
-            {/* Live Demo Credentials Ribbon */}
-            <div className="glass-card p-6 max-w-4xl mx-auto border-primary/20 bg-black/60">
-              <div className="text-[10px] font-black uppercase text-primary tracking-widest mb-3 flex items-center justify-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> Instant Demo Access Credentials
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-left">
-                  <div className="font-bold text-white flex items-center justify-between">
-                    <span>Member Role</span> <span className="badge-lime">MEMBER</span>
-                  </div>
-                  <div className="text-gray-400 font-mono text-[11px] mt-1">user@hp.com • password123</div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-left">
-                  <div className="font-bold text-white flex items-center justify-between">
-                    <span>Trainer Role</span> <span className="badge-blue">TRAINER</span>
-                  </div>
-                  <div className="text-gray-400 font-mono text-[11px] mt-1">trainer@hp.com • password123</div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-left">
-                  <div className="font-bold text-white flex items-center justify-between">
-                    <span>Admin System</span> <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">ADMIN</span>
-                  </div>
-                  <div className="text-gray-400 font-mono text-[11px] mt-1">admin@hp.com • password123</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Enterprise Pillars Feature Grid */}
-      <section className="py-24 bg-surface/50 border-y border-border relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <span className="badge-lime mb-2 inline-block">Engineered For Growth</span>
-            <h2 className="text-4xl lg:text-6xl font-black italic uppercase tracking-tight mb-4">Enterprise Features Built Like A Pro</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base">Designed by master strength coaches & principal software architects for maximum member retention.</p>
+      {/* Feature Highlights Grid */}
+      <section className="py-24 bg-surface/30 border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="max-w-2xl mb-14">
+            <span className="badge-accent mb-2.5 inline-block text-[11px]">Architecture</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-text-primary tracking-tight">Built for serious performance.</h2>
+            <p className="text-xs sm:text-sm text-text-secondary mt-1.5 leading-relaxed">Calibrated by master strength coaches and software architects for athlete retention.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              { 
-                icon: <Bot className="w-7 h-7 text-primary" />, 
-                title: "Person-Specific AI Coach", 
-                desc: "Calculates BMR, TDEE, macro ratios, and periodized Push/Pull/Legs splits tailored to body metrics & experience." 
+              {
+                IconComponent: Sparkles3D,
+                title: "Person-Specific AI Coach",
+                desc: "Calculates BMR, TDEE, macro ratios, and periodized Push/Pull/Legs splits tailored to body metrics and training age."
               },
-              { 
-                icon: <Activity className="w-7 h-7 text-secondary" />, 
-                title: "Live Workout Logger & Rest Timer", 
-                desc: "Interactive set-by-set tracker with weight & rep inputs, audio-visual rest timer countdown, and RPE 8-9 targets." 
+              {
+                IconComponent: Chart3D,
+                title: "Live Volume Telemetry",
+                desc: "Set-by-set tracker with weight and rep inputs, integrated rest timer countdown, and progressive overload target curves."
               },
-              { 
-                icon: <CreditCard className="w-7 h-7 text-primary" />, 
-                title: "Razorpay Payment Gateway", 
-                desc: "HMAC signature verification, instant tier upgrades (Starter, Pro, Elite), automated billing history & receipt downloads." 
+              {
+                IconComponent: Dumbbell3D,
+                title: "3D Biomechanical Vault",
+                desc: "Interactive anatomical body map and 100% muscle coverage exercise database with form cues and common error alerts."
               }
-            ].map((feature, i) => (
-              <motion.div 
-                key={i} 
-                whileHover={{ y: -8 }} 
-                className="p-8 glass-card-interactive flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-6 border border-white/10 group-hover:border-primary/40 group-hover:bg-primary/10 transition-all">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-2xl font-black italic uppercase text-white mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
-                  <p className="text-gray-400 leading-relaxed text-xs sm:text-sm font-medium">{feature.desc}</p>
+            ].map((f, i) => (
+              <TiltCard key={i} maxTilt={3} className="panel p-6 space-y-3.5">
+                <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+                  <f.IconComponent size={22} />
                 </div>
-
-                <div className="mt-8 pt-4 border-t border-border flex items-center gap-2 text-xs font-bold text-primary">
-                  <span>Explore Feature</span> <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-text-primary">{f.title}</h3>
+                  <p className="text-xs text-text-secondary leading-relaxed">{f.desc}</p>
                 </div>
-              </motion.div>
+              </TiltCard>
             ))}
           </div>
         </div>
       </section>
 
       {/* Call To Action */}
-      <section className="py-24 relative overflow-hidden text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="glass-card p-12 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 border-primary/30 glow-border">
-            <h2 className="text-4xl sm:text-5xl font-black italic uppercase tracking-tight mb-4">
-              READY TO SCALE YOUR GYM SYSTEM?
-            </h2>
-            <p className="text-gray-300 text-sm sm:text-base mb-8 max-w-xl mx-auto">
-              Join thousands of athletes, trainers, and facility owners getting results with HealthPoint Fitness AI.
-            </p>
-            <Link to="/register" className="btn-premium px-10 py-4 text-xs inline-flex items-center gap-2">
-              Launch Your Portal Account <ArrowRight className="w-4 h-4 text-black" />
-            </Link>
-          </div>
+      <section className="py-24 text-center">
+        <div className="max-w-3xl mx-auto px-6">
+          <TiltCard maxTilt={2} className="panel p-12 bg-surface-elevated border-border space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
+                Upgrade your club and athlete experience.
+              </h2>
+              <p className="text-xs sm:text-sm text-text-secondary max-w-lg mx-auto leading-relaxed">
+                Join athletes, trainers, and gym facility owners elevating performance with HealthPoint Fitness.
+              </p>
+            </div>
+            <div>
+              <Link to="/register" className="btn-hero text-xs px-8 py-3.5 shadow-lg">
+                Create Member Account <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </div>
+          </TiltCard>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500 font-medium">
-          <div className="flex items-center gap-2">
-            <Dumbbell className="w-5 h-5 text-primary" />
-            <span className="font-bold text-white uppercase tracking-wider">HealthPoint Fitness Platform</span>
+      <footer className="py-8 border-t border-border bg-surface text-xs text-text-secondary">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2 text-text-primary font-semibold">
+            <Dumbbell3D size={20} />
+            <span>HealthPoint Fitness</span>
           </div>
-          <div>© 2026 HealthPoint Fitness Inc. All rights reserved.</div>
+          <div>© 2026 HealthPoint Fitness Platform. All rights reserved.</div>
         </div>
       </footer>
     </div>

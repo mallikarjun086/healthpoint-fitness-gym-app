@@ -65,4 +65,20 @@ public class UserProfile {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public Integer getDailyCalorieTarget() {
+        return dailyCalories != null ? dailyCalories : 2650;
+    }
+
+    public Integer getDailyProteinGrams() {
+        return dailyProtein != null ? dailyProtein : 185;
+    }
+
+    public Integer getDailyCarbsGrams() {
+        return dailyCarbs != null ? dailyCarbs : 280;
+    }
+
+    public Integer getDailyFatGrams() {
+        return dailyFat != null ? dailyFat : 65;
+    }
 }
