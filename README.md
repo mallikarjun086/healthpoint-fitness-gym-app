@@ -78,6 +78,7 @@ The database automatically seeds demo accounts for instant testing:
 ```
 
 ### Backend
+
 - **Framework**: Spring Boot 3.2.5 (Java 21)
 - **Security**: Spring Security 6 with stateless JWT Bearer token authentication & BCrypt hashing
 - **Database**: PostgreSQL 15+ / Flyway automated schema migrations (`V1__init_schema.sql`, `V2__seed_initial_data.sql`)
@@ -85,6 +86,7 @@ The database automatically seeds demo accounts for instant testing:
 - **Documentation & Testing**: JUnit 5, MockMvc, AssertJ
 
 ### Frontend
+
 - **Framework**: React 18 with Vite 5
 - **Styling**: Tailwind CSS 3.4 with Electric Obsidian design tokens & glassmorphism
 - **Charts & Telemetry**: Recharts (Area, Bar, Pie charts with customized glowing gradients)
@@ -96,25 +98,30 @@ The database automatically seeds demo accounts for instant testing:
 ## ⚡ Quick Start: Local Development
 
 ### Prerequisites
+
 - **JDK 21** or **JDK 17**
 - **Node.js 18+** & **npm**
 - **Maven 3.8+** (or use included wrapper)
 
 ### 1. Start the Backend API (Port 8085)
+
 ```bash
 cd backend
 mvn clean spring-boot:run
 ```
+
 - API Base URL: `http://localhost:8085/api`
 - Public Health Check: `http://localhost:8085/api/public/health`
 - Embedded H2 Console: `http://localhost:8085/h2-console` (JDBC URL: `jdbc:h2:mem:healthpointdb`)
 
 ### 2. Start the Frontend App (Port 5173)
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
 - Web Application: `http://localhost:5173`
 
 ---
@@ -144,11 +151,13 @@ docker-compose ps
 Deploy the entire full-stack app to the cloud for **$0.00 / Month** with **no credit card required**:
 
 ### 1. Free PostgreSQL Database on [Neon.tech](https://neon.tech)
+
 1. Sign up at [Neon.tech](https://neon.tech) using GitHub.
 2. Click **"New Project"** → Name: `healthpoint-fitness` → Create.
 3. Under **Connection Details**, copy your JDBC connection parameters (`host`, `database`, `user`, `password`).
 
 ### 2. Free Spring Boot Backend on [Render.com](https://render.com)
+
 1. Sign up at [Render.com](https://render.com) using GitHub.
 2. Click **"New +"** → **"Web Service"** → Select your repository.
 3. Configure:
@@ -167,6 +176,7 @@ Deploy the entire full-stack app to the cloud for **$0.00 / Month** with **no cr
 5. Click **"Create Web Service"**. Your live API URL will be: `https://<your-backend>.onrender.com`.
 
 ### 3. Free React Frontend on [Vercel](https://vercel.com)
+
 1. Sign up at [Vercel.com](https://vercel.com) using GitHub.
 2. Click **"Add New..."** → **"Project"** → Select this repository.
 3. Configure:
