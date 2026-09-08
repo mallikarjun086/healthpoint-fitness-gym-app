@@ -4,67 +4,144 @@
 
 @layer base {
   body {
-    @apply bg-background text-text-primary antialiased selection:bg-primary/30 selection:text-white;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #0C0C0E;
-    color: #F2F2F0;
+    @apply bg-background text-text-primary antialiased;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #08090B;
+    color: #F4F4F6;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight text-text-primary;
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    @apply tracking-tight text-text-primary font-bold;
   }
 }
 
 @layer components {
-  /* Flat, Matte Panels with Hairline Dividers */
+  /* =========================================================
+     TYPOGRAPHY SCALE (DISPLAY & BODY)
+     ========================================================= */
+  .display-2xl {
+    font-family: 'Outfit', sans-serif;
+    @apply text-5xl sm:text-7xl lg:text-[5.5rem] leading-[0.95] tracking-[-0.04em] font-black text-text-primary;
+  }
+
+  .display-xl {
+    font-family: 'Outfit', sans-serif;
+    @apply text-4xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-[-0.035em] font-extrabold text-text-primary;
+  }
+
+  .display-lg {
+    font-family: 'Outfit', sans-serif;
+    @apply text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-[-0.03em] font-bold text-text-primary;
+  }
+
+  .heading-xl {
+    font-family: 'Outfit', sans-serif;
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-text-primary;
+  }
+
+  .heading-lg {
+    font-family: 'Outfit', sans-serif;
+    @apply text-xl sm:text-2xl font-semibold tracking-tight text-text-primary;
+  }
+
+  .heading-md {
+    font-family: 'Outfit', sans-serif;
+    @apply text-lg sm:text-xl font-semibold tracking-tight text-text-primary;
+  }
+
+  .heading-sm {
+    @apply text-sm sm:text-base font-semibold tracking-tight text-text-primary;
+  }
+
+  .body-lg {
+    @apply text-base sm:text-lg text-text-secondary leading-relaxed font-normal;
+  }
+
+  .body-md {
+    @apply text-sm text-text-secondary leading-relaxed font-normal;
+  }
+
+  .body-sm {
+    @apply text-xs text-text-secondary leading-normal font-normal;
+  }
+
+  .caption {
+    @apply text-[11px] font-medium tracking-wider uppercase text-text-muted;
+  }
+
+  .stat-display {
+    font-family: 'Outfit', sans-serif;
+    @apply font-extrabold tracking-tight text-text-primary;
+  }
+
+  /* =========================================================
+     SURFACE & ELEVATION LAYERS (CINEMATIC OBSIDIAN)
+     ========================================================= */
   .panel {
     @apply bg-surface border border-border rounded-2xl transition-all duration-200;
   }
 
+  .panel-card {
+    @apply bg-surface-card border border-border rounded-2xl shadow-card transition-all duration-200;
+  }
+
   .panel-elevated {
-    @apply bg-surface-elevated border border-border rounded-2xl shadow-panel;
+    @apply bg-surface-elevated border border-border-light rounded-2xl shadow-elevated;
   }
 
   .panel-interactive {
-    @apply bg-surface border border-border rounded-2xl transition-all duration-200 hover:border-border-light hover:bg-surface-elevated;
+    @apply bg-surface-card border border-border rounded-2xl shadow-card transition-all duration-200 hover:border-border-light hover:bg-surface-elevated hover:-translate-y-0.5 hover:shadow-elevated;
   }
 
-  /* Scoreboard numbers for athletic stats */
-  .stat-number {
-    font-family: 'Outfit', 'Inter', sans-serif;
-    @apply font-extrabold tracking-tight text-text-primary;
+  /* Frosted Glass Sheet (Used strictly for sticky headers, floating navs, and modal dialogs) */
+  .glass-surface {
+    background-color: rgba(17, 18, 22, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    @apply border border-white/10 shadow-modal;
   }
 
-  /* Tactile Physical Buttons with 3D Depth Feedback */
+  .glass-pill {
+    background-color: rgba(23, 25, 31, 0.7);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    @apply border border-white/10 shadow-elevated;
+  }
+
+  /* =========================================================
+     TACTILE PHYSICAL BUTTONS (PHYSICAL SPRING FEEDBACK)
+     ========================================================= */
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all duration-200 border-t border-white/20 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/25 active:translate-y-0 active:scale-[0.97] active:shadow-inner disabled:opacity-50 disabled:pointer-events-none inline-flex items-center justify-center gap-2;
+    @apply bg-primary hover:bg-primary-hover active:bg-primary-dark text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all duration-200 border-t border-white/20 shadow-sm hover:shadow-accent hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .btn-hero {
-    @apply bg-gradient-hero text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 border-t border-white/25 hover:-translate-y-0.5 hover:opacity-95 hover:shadow-hero active:translate-y-0 active:scale-[0.97] disabled:opacity-50 inline-flex items-center justify-center gap-2 shadow-panel;
+    @apply bg-gradient-accent hover:opacity-95 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl transition-all duration-200 border-t border-white/25 shadow-card hover:shadow-accent hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .btn-secondary {
-    @apply bg-surface-elevated hover:bg-surface-hover border border-border hover:border-border-light text-text-primary font-medium text-xs px-5 py-2.5 rounded-xl transition-all duration-200 border-t border-white/10 hover:-translate-y-0.5 hover:shadow-panel active:translate-y-0 active:scale-[0.97] disabled:opacity-50 inline-flex items-center justify-center gap-2;
+    @apply bg-surface-elevated hover:bg-surface-hover border border-border hover:border-border-light text-text-primary font-medium text-xs px-5 py-2.5 rounded-xl transition-all duration-200 border-t border-white/10 shadow-sm hover:-translate-y-0.5 hover:shadow-card active:translate-y-0 active:scale-[0.98] disabled:opacity-50 inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .btn-ghost {
-    @apply hover:bg-surface-elevated text-text-secondary hover:text-text-primary font-medium text-xs px-4 py-2 rounded-xl transition-all duration-150 active:scale-[0.97] inline-flex items-center justify-center gap-2;
+    @apply hover:bg-surface-elevated text-text-secondary hover:text-text-primary font-medium text-xs px-4 py-2 rounded-xl transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
-  /* Fast, Clean Table Row Hover Micro-interactions */
-  .table-row-hover {
-    @apply transition-colors duration-150 hover:bg-surface-elevated/70;
+  .btn-danger {
+    @apply bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-medium text-xs px-4 py-2 rounded-xl transition-all duration-150 active:scale-[0.98] inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
-  /* Refined Badges (No Neon) */
+  /* =========================================================
+     RESTYLED BADGES & METRIC TAGS
+     ========================================================= */
   .badge-accent {
-    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/10 text-primary border border-primary/20 inline-flex items-center gap-1;
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/10 text-primary border border-primary/25 inline-flex items-center gap-1;
   }
 
   .badge-hero {
-    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-violet/10 text-accent-violet border border-accent-violet/20 inline-flex items-center gap-1;
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30 inline-flex items-center gap-1;
   }
 
   .badge-muted {
@@ -72,12 +149,20 @@
   }
 
   .badge-success {
-    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-flex items-center gap-1;
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 inline-flex items-center gap-1;
   }
 
-  /* Compatibility mappings for legacy classes to adhere to new design system */
+  .badge-warning {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/25 inline-flex items-center gap-1;
+  }
+
+  .badge-danger {
+    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-red-500/10 text-red-400 border border-red-500/25 inline-flex items-center gap-1;
+  }
+
+  /* Compatibility mappings for legacy styling */
   .glass-card {
-    @apply panel;
+    @apply panel-card;
   }
 
   .glass-card-interactive {
@@ -85,7 +170,7 @@
   }
 
   .glass-card-neon {
-    @apply panel border-primary/20 hover:border-primary/40;
+    @apply panel-card border-primary/25 hover:border-primary/50 hover:shadow-accent;
   }
 
   .btn-premium {
@@ -105,7 +190,7 @@
   }
 
   .badge-blue {
-    @apply badge-hero;
+    @apply badge-accent;
   }
 
   .gradient-text-lime {
@@ -113,7 +198,7 @@
   }
 
   .gradient-text-cyber {
-    @apply bg-gradient-hero bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-text-primary via-text-primary to-text-secondary bg-clip-text text-transparent;
   }
 
   .glow-border {
@@ -121,7 +206,15 @@
   }
 
   .glow-cyan {
-    @apply border-primary/30;
+    @apply border-primary/30 shadow-accent;
+  }
+
+  .stat-number {
+    @apply stat-display;
+  }
+
+  .table-row-hover {
+    @apply transition-colors duration-150 hover:bg-surface-elevated/70;
   }
 }
 
@@ -130,21 +223,22 @@
   @apply h-[1px] w-full bg-border;
 }
 
-/* Restrained, non-distracting scrollbar */
+/* Apple-style subtle scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0C0C0E;
+  background: #08090B;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272A;
+  background: #1D1F26;
   border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3F3F46;
+  background: #2D303C;
 }

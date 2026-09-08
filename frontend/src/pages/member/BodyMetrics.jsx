@@ -103,7 +103,7 @@ const BodyMetrics = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
@@ -112,8 +112,8 @@ const BodyMetrics = () => {
                 <Scale3D size={18} /> Body Composition
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Body Metrics & Progression</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Track scale weight, body fat %, and circumference measurements with longitudinal charts.</p>
+            <h1 className="heading-xl text-text-primary">Body Metrics & Progression</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Track scale weight, body fat %, and circumference measurements with longitudinal charts.</p>
           </div>
 
           <button
@@ -126,14 +126,14 @@ const BodyMetrics = () => {
 
         {/* Quick Stat Highlights with 3D Tilt & Count-up */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Current Weight</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Current Weight</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Scale3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={latestLog.weightKg || 75.0} suffix=" kg" />
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
@@ -141,40 +141,40 @@ const BodyMetrics = () => {
             </div>
           </TiltCard>
 
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Body Fat %</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Body Fat %</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Chart3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={latestLog.bodyFatPercentage || 18.8} suffix="%" />
             </div>
             <div className="text-[11px] text-text-secondary font-medium">Optimal lean range</div>
           </TiltCard>
 
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">BMI Index</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">BMI Index</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Activity3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={currentBmi} />
             </div>
             <div className="text-[11px] text-emerald-400 font-medium">Healthy mass ratio</div>
           </TiltCard>
 
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Target Goal</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Target Goal</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Heart3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={profile?.targetWeightKg || 72.0} suffix=" kg" />
             </div>
             <div className="text-[11px] text-text-secondary font-medium">3.0 kg to goal</div>
@@ -184,13 +184,13 @@ const BodyMetrics = () => {
         {/* Charts Section */}
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
           {/* Weight Trend with 3D Tilt */}
-          <TiltCard maxTilt={2} className="panel p-6 space-y-4">
+          <TiltCard maxTilt={2} className="panel-card p-6 space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-base font-bold text-text-primary">
+                <h3 className="heading-md text-text-primary">
                   Weight Progression
                 </h3>
-                <p className="text-xs text-text-secondary">Longitudinal weight trajectory over time</p>
+                <p className="body-sm text-text-secondary">Longitudinal weight trajectory over time</p>
               </div>
               <span className="badge-accent">kg</span>
             </div>
@@ -200,28 +200,28 @@ const BodyMetrics = () => {
                 <AreaChart data={metricsHistory}>
                   <defs>
                     <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#5B6EFF" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#5B6EFF" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.35}/>
+                      <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272A" vertical={false} />
-                  <XAxis dataKey="logDate" stroke="#52525B" tick={{ fontSize: 11, fill: '#8C8C91' }} />
-                  <YAxis domain={['dataMin - 2', 'dataMax + 2']} stroke="#52525B" tick={{ fontSize: 11, fill: '#8C8C91' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#18181B', borderColor: '#27272A', borderRadius: '8px', color: '#F2F2F0' }} />
-                  <Area type="monotone" dataKey="weightKg" stroke="#5B6EFF" strokeWidth={2.5} fill="url(#weightGrad)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="logDate" stroke="#56575E" tick={{ fontSize: 11, fill: '#8F9098' }} />
+                  <YAxis domain={['dataMin - 2', 'dataMax + 2']} stroke="#56575E" tick={{ fontSize: 11, fill: '#8F9098' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#111216', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#F4F4F6' }} />
+                  <Area type="monotone" dataKey="weightKg" stroke="#4F46E5" strokeWidth={2.5} fill="url(#weightGrad)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </TiltCard>
 
           {/* Body Fat % Trend with 3D Tilt */}
-          <TiltCard maxTilt={2} className="panel p-6 space-y-4">
+          <TiltCard maxTilt={2} className="panel-card p-6 space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-base font-bold text-text-primary">
+                <h3 className="heading-md text-text-primary">
                   Body Fat Trajectory
                 </h3>
-                <p className="text-xs text-text-secondary">Body fat percentage change curve</p>
+                <p className="body-sm text-text-secondary">Body fat percentage change curve</p>
               </div>
               <span className="badge-accent">%</span>
             </div>
@@ -229,11 +229,11 @@ const BodyMetrics = () => {
             <div className="h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={metricsHistory}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272A" vertical={false} />
-                  <XAxis dataKey="logDate" stroke="#52525B" tick={{ fontSize: 11, fill: '#8C8C91' }} />
-                  <YAxis domain={[15, 25]} stroke="#52525B" tick={{ fontSize: 11, fill: '#8C8C91' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#18181B', borderColor: '#27272A', borderRadius: '8px', color: '#F2F2F0' }} />
-                  <Line type="monotone" dataKey="bodyFatPercentage" stroke="#5B6EFF" strokeWidth={2.5} dot={{ r: 3.5, fill: '#5B6EFF' }} activeDot={{ r: 5 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="logDate" stroke="#56575E" tick={{ fontSize: 11, fill: '#8F9098' }} />
+                  <YAxis domain={[15, 25]} stroke="#56575E" tick={{ fontSize: 11, fill: '#8F9098' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#111216', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#F4F4F6' }} />
+                  <Line type="monotone" dataKey="bodyFatPercentage" stroke="#4F46E5" strokeWidth={2.5} dot={{ r: 3.5, fill: '#4F46E5' }} activeDot={{ r: 5 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

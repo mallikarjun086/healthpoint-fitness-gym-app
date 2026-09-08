@@ -152,15 +152,15 @@ const DietPlanBuilder = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar role="trainer" />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="badge-accent">Master Trainer Suite</span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Diet & Nutrition Plan Builder</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Design macronutrient targets and meal distributions for your coaching roster.</p>
+            <h1 className="heading-xl text-text-primary">Diet & Nutrition Plan Builder</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Design macronutrient targets and meal distributions for your coaching roster.</p>
           </div>
 
           <button
@@ -174,14 +174,14 @@ const DietPlanBuilder = () => {
 
         {/* Configuration Panel */}
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 panel p-6 space-y-4">
-            <h3 className="text-base font-bold text-text-primary flex items-center gap-2">
+          <div className="lg:col-span-2 panel-card p-6 space-y-4">
+            <h3 className="heading-md text-text-primary flex items-center gap-2">
               <UserCheck className="w-4 h-4 text-primary" /> Target Parameters
             </h3>
 
             <div className="grid sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-medium text-text-secondary block mb-1">Assigned Client</label>
+                <label className="caption block mb-1">Assigned Client</label>
                 <select
                   value={selectedClientId}
                   onChange={e => setSelectedClientId(e.target.value)}
@@ -196,7 +196,7 @@ const DietPlanBuilder = () => {
               </div>
 
               <div>
-                <label className="text-[11px] font-medium text-text-secondary block mb-1">Dietary Preference</label>
+                <label className="caption block mb-1">Dietary Preference</label>
                 <select
                   value={dietType}
                   onChange={e => setDietType(e.target.value)}
@@ -211,7 +211,7 @@ const DietPlanBuilder = () => {
             </div>
 
             <div>
-              <label className="text-[11px] font-medium text-text-secondary block mb-1">Plan Title</label>
+              <label className="caption block mb-1">Plan Title</label>
               <input
                 type="text"
                 value={planTitle}
@@ -222,51 +222,51 @@ const DietPlanBuilder = () => {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
               <div className="p-3 rounded-xl bg-surface-elevated border border-border">
-                <span className="text-[10px] font-semibold text-text-secondary uppercase">Target kcal</span>
+                <span className="caption">Target kcal</span>
                 <input
                   type="number"
                   value={targetCalories}
                   onChange={e => setTargetCalories(parseInt(e.target.value) || 0)}
-                  className="w-full bg-transparent stat-number text-lg text-primary outline-none mt-0.5"
+                  className="w-full bg-transparent stat-display text-lg text-primary outline-none mt-0.5"
                 />
               </div>
 
               <div className="p-3 rounded-xl bg-surface-elevated border border-border">
-                <span className="text-[10px] font-semibold text-text-secondary uppercase">Protein (g)</span>
+                <span className="caption">Protein (g)</span>
                 <input
                   type="number"
                   value={targetProtein}
                   onChange={e => setTargetProtein(parseInt(e.target.value) || 0)}
-                  className="w-full bg-transparent stat-number text-lg text-text-primary outline-none mt-0.5"
+                  className="w-full bg-transparent stat-display text-lg text-text-primary outline-none mt-0.5"
                 />
               </div>
 
               <div className="p-3 rounded-xl bg-surface-elevated border border-border">
-                <span className="text-[10px] font-semibold text-text-secondary uppercase">Carbs (g)</span>
+                <span className="caption">Carbs (g)</span>
                 <input
                   type="number"
                   value={targetCarbs}
                   onChange={e => setTargetCarbs(parseInt(e.target.value) || 0)}
-                  className="w-full bg-transparent stat-number text-lg text-text-secondary outline-none mt-0.5"
+                  className="w-full bg-transparent stat-display text-lg text-text-secondary outline-none mt-0.5"
                 />
               </div>
 
               <div className="p-3 rounded-xl bg-surface-elevated border border-border">
-                <span className="text-[10px] font-semibold text-text-secondary uppercase">Fats (g)</span>
+                <span className="caption">Fats (g)</span>
                 <input
                   type="number"
                   value={targetFat}
                   onChange={e => setTargetFat(parseInt(e.target.value) || 0)}
-                  className="w-full bg-transparent stat-number text-lg text-text-secondary outline-none mt-0.5"
+                  className="w-full bg-transparent stat-display text-lg text-text-secondary outline-none mt-0.5"
                 />
               </div>
             </div>
           </div>
 
           {/* Macro Balance Preview */}
-          <div className="panel p-6 flex flex-col justify-between space-y-4">
+          <div className="panel-card p-6 flex flex-col justify-between space-y-4">
             <div className="space-y-4">
-              <h4 className="text-base font-bold text-text-primary">
+              <h4 className="heading-md text-text-primary">
                 Macro Fulfillment
               </h4>
 

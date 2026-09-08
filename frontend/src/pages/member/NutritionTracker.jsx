@@ -51,15 +51,39 @@ const NutritionTracker = () => {
   const [waterGlasses, setWaterGlasses] = useState(8);
   const [customFood, setCustomFood] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '', quantity: 1 });
 
-  const targetCalories = 2650;
-  const targetProtein = 185;
-  const targetCarbs = 280;
-  const targetFat = 65;
+  const [targets, setTargets] = useState({
+    calories: 2650,
+    protein: 185,
+    carbs: 280,
+    fat: 65
+  });
+
+  const targetCalories = targets.calories;
+  const targetProtein = targets.protein;
+  const targetCarbs = targets.carbs;
+  const targetFat = targets.fat;
 
   useEffect(() => {
     fetchDailySummary();
     fetchFoods();
+    fetchGoalPlan();
   }, [user]);
+
+  const fetchGoalPlan = async () => {
+    try {
+      const res = await api.get('/goals/my-plan');
+      if (res.data) {
+        setTargets({
+          calories: res.data.dailyCalories || res.data.targetCalories || 2650,
+          protein: res.data.proteinGrams || res.data.targetProteinG || 185,
+          carbs: res.data.carbsGrams || res.data.targetCarbsG || 280,
+          fat: res.data.fatGrams || res.data.targetFatG || 65
+        });
+      }
+    } catch (e) {
+      console.log('Goals fallback');
+    }
+  };
 
   const fetchDailySummary = async () => {
     try {
@@ -169,15 +193,15 @@ const NutritionTracker = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="badge-accent">Macro Tracking</span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Nutrition & Macro Log</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Log meals from verified food database items and track daily macronutrient adherence.</p>
+            <h1 className="heading-xl text-text-primary">Nutrition & Macro Log</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Log meals from verified food database items and track daily macronutrient adherence.</p>
           </div>
 
           <button
@@ -191,11 +215,11 @@ const NutritionTracker = () => {
         {/* Calorie & Hydration Grid */}
         <div className="grid lg:grid-cols-12 gap-6 mb-8">
           {/* Main Calorie Summary */}
-          <div className="lg:col-span-6 panel p-6 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 panel-card p-6 flex flex-col justify-between space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-xs font-medium text-text-secondary block">Daily Caloric Target</span>
-                <div className="text-3xl stat-number text-text-primary mt-1">
+                <span className="caption block">Daily Caloric Target</span>
+                <div className="text-3xl stat-display text-text-primary mt-1">
                   {totalCalories} <span className="text-sm font-normal text-text-secondary">/ {targetCalories} kcal</span>
                 </div>
               </div>
@@ -219,20 +243,20 @@ const NutritionTracker = () => {
 
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border text-center">
               <div>
-                <div className="text-[10px] text-text-secondary uppercase font-semibold">Protein</div>
-                <div className="text-base stat-number text-text-primary mt-0.5">
+                <div className="caption">Protein</div>
+                <div className="text-base stat-display text-text-primary mt-0.5">
                   {totalProtein}g <span className="text-[10px] font-normal text-text-muted">/ {targetProtein}g</span>
                 </div>
               </div>
               <div className="border-x border-border">
-                <div className="text-[10px] text-text-secondary uppercase font-semibold">Carbs</div>
-                <div className="text-base stat-number text-text-primary mt-0.5">
+                <div className="caption">Carbs</div>
+                <div className="text-base stat-display text-text-primary mt-0.5">
                   {totalCarbs}g <span className="text-[10px] font-normal text-text-muted">/ {targetCarbs}g</span>
                 </div>
               </div>
               <div>
-                <div className="text-[10px] text-text-secondary uppercase font-semibold">Fats</div>
-                <div className="text-base stat-number text-text-primary mt-0.5">
+                <div className="caption">Fats</div>
+                <div className="text-base stat-display text-text-primary mt-0.5">
                   {totalFat}g <span className="text-[10px] font-normal text-text-muted">/ {targetFat}g</span>
                 </div>
               </div>
@@ -240,14 +264,14 @@ const NutritionTracker = () => {
           </div>
 
           {/* Water Intake Tracker */}
-          <div className="lg:col-span-6 panel p-6 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-6 panel-card p-6 flex flex-col justify-between space-y-6">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-xs font-medium text-text-secondary block">Hydration Target</span>
-                <div className="text-2xl stat-number text-text-primary mt-1">
+                <span className="caption block">Hydration Target</span>
+                <div className="text-2xl stat-display text-text-primary mt-1">
                   {(waterGlasses * 0.25).toFixed(1)} L <span className="text-sm font-normal text-text-secondary">/ 3.5 L</span>
                 </div>
-                <p className="text-xs text-text-secondary mt-0.5">{waterGlasses} of 14 glasses completed</p>
+                <p className="body-sm text-text-secondary mt-0.5">{waterGlasses} of 14 glasses completed</p>
               </div>
               <div className="p-2.5 rounded-xl bg-surface-elevated text-primary border border-border">
                 <Droplet className="w-5 h-5" />
@@ -262,7 +286,7 @@ const NutritionTracker = () => {
                   onClick={() => setWaterGlasses(i + 1)}
                   className={`h-9 rounded-lg border flex items-center justify-center transition-all ${
                     i < waterGlasses
-                      ? 'bg-primary/10 border-primary text-primary'
+                      ? 'bg-primary/10 border-primary text-primary shadow-sm'
                       : 'bg-surface-elevated border-border text-text-muted hover:border-border-light'
                   }`}
                   title={`${(i + 1) * 250} ml`}

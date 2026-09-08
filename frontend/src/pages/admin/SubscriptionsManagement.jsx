@@ -8,13 +8,16 @@ import {
   Zap, 
   Search, 
   ShieldCheck, 
-  Sparkles,
-  Edit,
-  Trash2
+  Sparkles, 
+  Trash2,
+  X
 } from 'lucide-react';
 import { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import { toast } from 'sonner';
+import TiltCard from '../../components/ui/TiltCard';
+import CountUp from '../../components/ui/CountUp';
+import { Shield3D, Dollar3D, Sparkles3D } from '../../components/ui/Icon3D';
 
 const SubscriptionsManagement = () => {
   const [plans, setPlans] = useState([
@@ -56,168 +59,161 @@ const SubscriptionsManagement = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8">
-        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <main className="flex-1 ml-0 md:ml-64 p-4 sm:p-8">
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-black uppercase text-primary tracking-widest">Admin Control</span>
-            </div>
-            <h1 className="text-3xl font-bold">Membership & Subscriptions</h1>
-            <p className="text-gray-400 mt-1">Configure membership tiers, pricing models, and subscriber perks.</p>
+            <span className="badge-accent text-[10px] mb-1 inline-block">Product Architecture</span>
+            <h1 className="heading-xl text-text-primary">Membership & Subscriptions</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Configure membership tiers, pricing models, and subscriber perks.</p>
           </div>
 
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="btn-premium px-6 py-2.5 text-xs flex items-center gap-2"
+            className="btn-primary text-xs flex items-center gap-2 shadow-accent"
           >
-            <Plus className="w-4 h-4 text-black" /> Create New Tier
+            <Plus className="w-4 h-4" /> Create New Tier
           </button>
         </header>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="glass-card p-6 border-l-4 border-l-primary">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-bold text-gray-400 uppercase">Active Subscriptions</span>
-              <CreditCard className="w-5 h-5 text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="caption">Active Subscriptions</span>
+              <Shield3D size={20} />
             </div>
-            <div className="text-3xl font-black">162</div>
-            <div className="text-xs text-primary font-bold mt-1">100% Payment Fulfillment</div>
-          </div>
+            <div className="stat-display text-2xl sm:text-3xl text-text-primary">
+              <CountUp target={162} />
+            </div>
+            <div className="text-[11px] text-emerald-400 font-medium">100% Payment Fulfillment</div>
+          </TiltCard>
 
-          <div className="glass-card p-6 border-l-4 border-l-blue-500">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-bold text-gray-400 uppercase">Monthly Recurring Revenue</span>
-              <TrendingUp className="w-5 h-5 text-blue-400" />
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="caption">Monthly Recurring Revenue</span>
+              <Dollar3D size={20} />
             </div>
-            <div className="text-3xl font-black">₹3,40,900</div>
-            <div className="text-xs text-blue-400 font-bold mt-1">+18% Growth this quarter</div>
-          </div>
+            <div className="stat-display text-2xl sm:text-3xl text-text-primary">
+              <CountUp target={340900} prefix="₹" />
+            </div>
+            <div className="text-[11px] text-primary font-medium">+18% Growth this quarter</div>
+          </TiltCard>
 
-          <div className="glass-card p-6 border-l-4 border-l-purple-500">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-bold text-gray-400 uppercase">Most Popular Tier</span>
-              <Sparkles className="w-5 h-5 text-purple-400" />
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="caption">Most Popular Tier</span>
+              <Sparkles3D size={20} />
             </div>
-            <div className="text-3xl font-black">Annual Elite</div>
-            <div className="text-xs text-purple-400 font-bold mt-1">62 Active Members</div>
-          </div>
+            <div className="text-xl font-bold text-text-primary font-display mt-1">Annual Elite</div>
+            <div className="text-[11px] text-text-muted">62 active athletes enrolled</div>
+          </TiltCard>
         </div>
 
-        {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Membership Plans Grid */}
+        <div className="grid md:grid-cols-3 gap-6">
           {plans.map((plan) => (
-            <motion.div 
-              key={plan.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-card p-6 flex flex-col justify-between relative group hover:border-primary/40 transition-all"
-            >
-              <div>
-                <div className="flex justify-between items-start mb-4">
+            <TiltCard key={plan.id} maxTilt={3} className="panel-card p-6 flex flex-col justify-between space-y-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-xl font-bold uppercase italic">{plan.name}</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
-                      {plan.durationDays === 365 ? 'Annual Billing' : 'Monthly Recurring'}
-                    </span>
+                    <h3 className="text-lg font-bold text-text-primary font-display">{plan.name}</h3>
+                    <div className="text-2xl font-black stat-display text-primary mt-1">
+                      ₹{plan.price.toLocaleString()}
+                      <span className="text-xs text-text-muted font-normal"> / {plan.durationDays} days</span>
+                    </div>
                   </div>
                   <button 
                     onClick={() => handleDeletePlan(plan.id, plan.name)}
-                    className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                    className="p-1.5 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="mb-6">
-                  <span className="text-4xl font-black">₹{plan.price.toLocaleString()}</span>
-                  <span className="text-xs text-gray-400 font-bold ml-1">/ {plan.durationDays} days</span>
-                </div>
-
-                <div className="space-y-3 mb-6">
-                  {plan.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-gray-300">
-                      <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
+                <div className="space-y-2 pt-2 border-t border-border">
+                  <div className="caption">Included Perks:</div>
+                  <ul className="space-y-1.5 text-xs text-text-secondary">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                <span className="text-xs text-gray-400 font-bold">Subscribers</span>
-                <span className="px-3 py-1 bg-primary/10 text-primary font-black text-xs rounded-full">
-                  {plan.activeSubscribers} Active
-                </span>
+              <div className="pt-4 border-t border-border flex items-center justify-between text-xs">
+                <span className="text-text-muted font-medium">{plan.activeSubscribers} Active Members</span>
+                <span className="badge-accent">{plan.durationDays} Days</span>
               </div>
-            </motion.div>
+            </TiltCard>
           ))}
         </div>
 
-        {/* Add Plan Modal */}
+        {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="glass-card p-8 w-full max-w-md bg-surface border-border">
-              <h3 className="text-2xl font-bold mb-4">Create Membership Tier</h3>
-              <form onSubmit={handleAddPlan} className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">Plan Name</label>
-                  <input 
-                    type="text" 
-                    value={newPlan.name} 
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="panel-elevated max-w-md w-full p-6 space-y-4">
+              <div className="flex justify-between items-center border-b border-border pb-3">
+                <h3 className="heading-md text-text-primary font-display">Create Membership Tier</h3>
+                <button onClick={() => setIsModalOpen(false)} className="text-text-muted hover:text-text-primary">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAddPlan} className="space-y-3">
+                <div className="space-y-1">
+                  <label className="caption">Plan Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={newPlan.name}
                     onChange={e => setNewPlan({...newPlan, name: e.target.value})}
-                    placeholder="e.g. VIP Ultra Pass" 
-                    required 
-                    className="w-full bg-background border border-border rounded-xl p-3 text-sm text-white outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">Price (₹)</label>
-                  <input 
-                    type="number" 
-                    value={newPlan.price} 
-                    onChange={e => setNewPlan({...newPlan, price: e.target.value})}
-                    placeholder="2499" 
-                    required 
-                    className="w-full bg-background border border-border rounded-xl p-3 text-sm text-white outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">Duration (Days)</label>
-                  <select 
-                    value={newPlan.durationDays}
-                    onChange={e => setNewPlan({...newPlan, durationDays: e.target.value})}
-                    className="w-full bg-background border border-border rounded-xl p-3 text-sm text-white outline-none focus:border-primary"
-                  >
-                    <option value={30}>30 Days (Monthly)</option>
-                    <option value={90}>90 Days (Quarterly)</option>
-                    <option value={365}>365 Days (Annual)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase">Features (Comma Separated)</label>
-                  <textarea 
-                    value={newPlan.features} 
-                    onChange={e => setNewPlan({...newPlan, features: e.target.value})}
-                    placeholder="Full access, AI Coaching, Sauna" 
-                    className="w-full bg-background border border-border rounded-xl p-3 text-sm text-white outline-none focus:border-primary h-24"
+                    placeholder="e.g. Semi-Annual VIP"
+                    className="w-full bg-surface-elevated border border-border rounded-xl py-2 px-3 text-xs text-text-primary outline-none focus:border-primary"
                   />
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <button 
-                    type="button" 
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border text-sm font-bold text-gray-400 hover:text-white"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit"
-                    className="flex-1 btn-premium text-sm py-3"
-                  >
-                    Save Tier
-                  </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="caption">Price (INR)</label>
+                    <input
+                      type="number"
+                      required
+                      value={newPlan.price}
+                      onChange={e => setNewPlan({...newPlan, price: e.target.value})}
+                      placeholder="2499"
+                      className="w-full bg-surface-elevated border border-border rounded-xl py-2 px-3 text-xs text-text-primary outline-none focus:border-primary"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="caption">Duration (Days)</label>
+                    <input
+                      type="number"
+                      required
+                      value={newPlan.durationDays}
+                      onChange={e => setNewPlan({...newPlan, durationDays: e.target.value})}
+                      placeholder="30"
+                      className="w-full bg-surface-elevated border border-border rounded-xl py-2 px-3 text-xs text-text-primary outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="caption">Features (Comma-separated)</label>
+                  <textarea
+                    rows={3}
+                    value={newPlan.features}
+                    onChange={e => setNewPlan({...newPlan, features: e.target.value})}
+                    placeholder="Free Weights, AI Workout Coach, Sauna Pass"
+                    className="w-full bg-surface-elevated border border-border rounded-xl py-2 px-3 text-xs text-text-primary outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="btn-ghost">Cancel</button>
+                  <button type="submit" className="btn-primary shadow-accent">Save Tier</button>
                 </div>
               </form>
             </div>

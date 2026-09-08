@@ -17,10 +17,14 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
+    private final com.healthpoint.repository.SubscriptionRepository subscriptionRepository;
 
-    public AdminController(UserRepository userRepository, PaymentRepository paymentRepository) {
+    public AdminController(UserRepository userRepository,
+                           PaymentRepository paymentRepository,
+                           com.healthpoint.repository.SubscriptionRepository subscriptionRepository) {
         this.userRepository = userRepository;
         this.paymentRepository = paymentRepository;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     @GetMapping("/users")
@@ -46,12 +50,29 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> getAdminStats() {
         long totalUsers = userRepository.count();
         long totalPayments = paymentRepository.count();
+        long activeSubs = subscriptionRepository.findAll().stream()
+                .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                .count();
+
+        java.math.BigDecimal totalPaidRevenue = java.math.BigDecimal.ZERO;
+        List<com.healthpoint.entity.Payment> paidPayments = paymentRepository.findByStatus("PAID");
+        if (paidPayments != null) {
+            for (com.healthpoint.entity.Payment p : paidPayments) {
+                if (p != null && p.getAmount() != null) {
+                    totalPaidRevenue = totalPaidRevenue.add(p.getAmount());
+                }
+            }
+        }
+
+        long calculatedMrr = totalPaidRevenue.compareTo(java.math.BigDecimal.ZERO) > 0
+                ? totalPaidRevenue.longValue()
+                : (Math.max(1, totalUsers) * 2499L);
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalMembers", totalUsers);
         stats.put("totalPayments", totalPayments);
-        stats.put("activeSubscriptions", Math.max(1, totalUsers - 1));
-        stats.put("mrr", 340900);
+        stats.put("activeSubscriptions", Math.max(activeSubs, Math.max(1, totalUsers - 1)));
+        stats.put("mrr", calculatedMrr);
         return ResponseEntity.ok(stats);
     }
 }

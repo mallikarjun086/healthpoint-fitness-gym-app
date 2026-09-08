@@ -1,6 +1,13 @@
 package com.healthpoint.controller;
 
+import com.healthpoint.entity.ExerciseLog;
+import com.healthpoint.entity.Notification;
+import com.healthpoint.entity.WorkoutLog;
+import com.healthpoint.repository.ExerciseLogRepository;
+import com.healthpoint.repository.WorkoutLogRepository;
+import com.healthpoint.service.NotificationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -10,11 +17,33 @@ import java.util.*;
 @RequestMapping("/api/live-workout")
 public class LiveWorkoutSessionController {
 
+    private final WorkoutLogRepository workoutLogRepository;
+    private final ExerciseLogRepository exerciseLogRepository;
+    private final NotificationService notificationService;
+
+    public LiveWorkoutSessionController(WorkoutLogRepository workoutLogRepository,
+                                       ExerciseLogRepository exerciseLogRepository,
+                                       NotificationService notificationService) {
+        this.workoutLogRepository = workoutLogRepository;
+        this.exerciseLogRepository = exerciseLogRepository;
+        this.notificationService = notificationService;
+    }
+
+    private Long resolveUserId(Authentication auth, Long requestedUserId) {
+        if (requestedUserId != null) {
+            return requestedUserId;
+        }
+        if (auth != null && auth.getPrincipal() instanceof Long) {
+            return (Long) auth.getPrincipal();
+        }
+        return 3L; // Default authenticated member
+    }
+
     // Simulates an active live workout session state
     @PostMapping("/start")
-    public ResponseEntity<Map<String, Object>> startSession(@RequestBody Map<String, Object> payload) {
-        String workoutName = (String) payload.getOrDefault("workoutName", "Cyber Overload Hypertrophy");
-        Long userId = Long.valueOf(payload.getOrDefault("userId", 1).toString());
+    public ResponseEntity<Map<String, Object>> startSession(@RequestBody Map<String, Object> payload, Authentication auth) {
+        String workoutName = (String) payload.getOrDefault("workoutName", "Biomechanical Computer Vision Session");
+        Long userId = resolveUserId(auth, payload.containsKey("userId") ? Long.valueOf(payload.get("userId").toString()) : null);
 
         Map<String, Object> res = new LinkedHashMap<>();
         res.put("sessionId", "SESS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -22,44 +51,8 @@ public class LiveWorkoutSessionController {
         res.put("workoutName", workoutName);
         res.put("startTime", LocalDateTime.now());
         res.put("status", "ACTIVE");
-        res.put("aiRecommendation", "Optimal readiness detected (HRV 78ms). Recommended target 1RM intensity: 82.5%");
-        
-        List<Map<String, Object>> exercises = new ArrayList<>();
-        
-        Map<String, Object> ex1 = new LinkedHashMap<>();
-        ex1.put("id", 101);
-        ex1.put("name", "Barbell Incline Bench Press");
-        ex1.put("targetMuscle", "Upper Chest");
-        ex1.put("suggestedSets", 4);
-        ex1.put("suggestedReps", "8-10");
-        ex1.put("suggestedWeightKg", 75.0);
-        ex1.put("restSeconds", 90);
-        ex1.put("completedSets", new ArrayList<>());
-        exercises.add(ex1);
+        res.put("aiRecommendation", "MediaPipe 33-landmark pose tracking calibrated. Joint kinematics active.");
 
-        Map<String, Object> ex2 = new LinkedHashMap<>();
-        ex2.put("id", 102);
-        ex2.put("name", "Cable Flyes (Low-to-High)");
-        ex2.put("targetMuscle", "Chest Squeeze");
-        ex2.put("suggestedSets", 3);
-        ex2.put("suggestedReps", "12-15");
-        ex2.put("suggestedWeightKg", 22.5);
-        ex2.put("restSeconds", 60);
-        ex2.put("completedSets", new ArrayList<>());
-        exercises.add(ex2);
-
-        Map<String, Object> ex3 = new LinkedHashMap<>();
-        ex3.put("id", 103);
-        ex3.put("name", "Overhead Triceps Extension");
-        ex3.put("targetMuscle", "Triceps Long Head");
-        ex3.put("suggestedSets", 4);
-        ex3.put("suggestedReps", "10-12");
-        ex3.put("suggestedWeightKg", 32.0);
-        ex3.put("restSeconds", 60);
-        ex3.put("completedSets", new ArrayList<>());
-        exercises.add(ex3);
-
-        res.put("exercises", exercises);
         return ResponseEntity.ok(res);
     }
 
@@ -79,6 +72,57 @@ public class LiveWorkoutSessionController {
         res.put("aiAdaptiveFeedback", rpe >= 9.0 ? 
             "High effort detected (RPE " + rpe + "). Keep weight constant for next set." : 
             "Great speed! You have capacity to add +2.5kg for the next set.");
+
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/summary")
+    public ResponseEntity<Map<String, Object>> saveLiveSessionSummary(@RequestBody Map<String, Object> payload, Authentication auth) {
+        Long userId = resolveUserId(auth, payload.containsKey("userId") ? Long.valueOf(payload.get("userId").toString()) : null);
+        String exerciseName = (String) payload.getOrDefault("exerciseName", "Squat");
+        int repsCompleted = Integer.parseInt(payload.getOrDefault("repsCompleted", 0).toString());
+        int formScore = Integer.parseInt(payload.getOrDefault("formScore", 90).toString());
+        int durationSeconds = Integer.parseInt(payload.getOrDefault("durationSeconds", 60).toString());
+        Object faultsObj = payload.get("faultCounts");
+
+        // Create persistent WorkoutLog
+        WorkoutLog workoutLog = new WorkoutLog();
+        workoutLog.setUserId(userId);
+        workoutLog.setStartedAt(LocalDateTime.now().minusSeconds(durationSeconds));
+        workoutLog.setCompletedAt(LocalDateTime.now());
+        workoutLog.setCompletionPercentage(formScore);
+
+        WorkoutLog savedLog = workoutLogRepository.save(workoutLog);
+
+        // Create ExerciseLog
+        ExerciseLog exLog = new ExerciseLog();
+        exLog.setWorkoutLog(savedLog);
+        exLog.setSetsCompleted(1);
+        exLog.setRepsCompleted(repsCompleted);
+        exLog.setRpe(8);
+        exLog.setNotes("CV Camera Coaching (" + exerciseName + ") | Form Quality: " + formScore + "% | Faults: " + faultsObj);
+        exerciseLogRepository.save(exLog);
+
+        // Send in-app notification
+        try {
+            Notification notif = new Notification();
+            notif.setUserId(userId);
+            notif.setTitle("Live Form Coaching Completed! 🎯");
+            notif.setMessage("Completed " + repsCompleted + " reps of " + exerciseName + " with " + formScore + "% form accuracy.");
+            notif.setType("WORKOUT");
+            notif.setLinkUrl("/member/workouts");
+            notificationService.createNotification(notif);
+        } catch (Exception ignored) {}
+
+        Map<String, Object> res = new LinkedHashMap<>();
+        res.put("status", "SUCCESS");
+        res.put("logId", savedLog.getId());
+        res.put("exerciseName", exerciseName);
+        res.put("repsCompleted", repsCompleted);
+        res.put("formScore", formScore);
+        res.put("durationSeconds", durationSeconds);
+        res.put("faultSummary", faultsObj);
+        res.put("message", "Session persisted to HealthPoint records.");
 
         return ResponseEntity.ok(res);
     }

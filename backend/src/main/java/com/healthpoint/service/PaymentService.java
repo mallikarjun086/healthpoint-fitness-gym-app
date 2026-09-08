@@ -21,17 +21,20 @@ public class PaymentService {
     private final SubscriptionRepository subscriptionRepository;
     private final AddOnSubscriptionRepository addOnRepository;
     private final UserRepository userRepository;
+    private final com.healthpoint.repository.MembershipPlanRepository planRepository;
     private final RazorpayService razorpayService;
 
     public PaymentService(PaymentRepository paymentRepository,
                           SubscriptionRepository subscriptionRepository,
                           AddOnSubscriptionRepository addOnRepository,
                           UserRepository userRepository,
+                          com.healthpoint.repository.MembershipPlanRepository planRepository,
                           RazorpayService razorpayService) {
         this.paymentRepository = paymentRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.addOnRepository = addOnRepository;
         this.userRepository = userRepository;
+        this.planRepository = planRepository;
         this.razorpayService = razorpayService;
     }
 
@@ -63,26 +66,56 @@ public class PaymentService {
         Payment payment = paymentRepository.findByRazorpayOrderId(razorpayOrderId)
                 .orElseThrow(() -> new RuntimeException("Payment not found for order id: " + razorpayOrderId));
 
-        if (isValid) {
+        if (!isValid) {
             payment.setRazorpayPaymentId(razorpayPaymentId);
             payment.setRazorpaySignature(razorpaySignature);
-            payment.setStatus("PAID");
+            payment.setStatus("FAILED");
             paymentRepository.save(payment);
+            throw new SecurityException("Invalid Razorpay payment signature verification failed");
+        }
 
-            if (referenceId != null) {
-                if ("MEMBERSHIP".equals(paymentFor)) {
+        payment.setRazorpayPaymentId(razorpayPaymentId);
+        payment.setRazorpaySignature(razorpaySignature);
+        payment.setStatus("PAID");
+        paymentRepository.save(payment);
+
+        if (referenceId != null) {
+            if ("MEMBERSHIP".equalsIgnoreCase(paymentFor)) {
+                if (planRepository.existsById(referenceId)) {
+                    // Deactivate existing active subscriptions for this user
+                    subscriptionRepository.findByUserIdAndIsActiveTrue(payment.getUser().getId())
+                            .ifPresent(sub -> {
+                                sub.setIsActive(false);
+                                subscriptionRepository.save(sub);
+                            });
+
+                    com.healthpoint.entity.MembershipPlan plan = planRepository.findById(referenceId).orElse(null);
+                    if (plan != null) {
+                        com.healthpoint.entity.Subscription subscription = new com.healthpoint.entity.Subscription();
+                        subscription.setUser(payment.getUser());
+                        subscription.setPlan(plan);
+                        subscription.setStartDate(LocalDateTime.now());
+                        int days = plan.getDurationDays() != null ? plan.getDurationDays() : 30;
+                        subscription.setEndDate(LocalDateTime.now().plusDays(days));
+                        subscription.setIsActive(true);
+                        subscriptionRepository.save(subscription);
+                    }
+                } else {
                     subscriptionRepository.findById(referenceId).ifPresent(sub -> {
+                        sub.setIsActive(true);
                         sub.setStartDate(LocalDateTime.now());
-                        sub.setEndDate(LocalDateTime.now().plusDays(sub.getPlan() != null ? sub.getPlan().getDurationDays() : 30));
+                        int days = (sub.getPlan() != null && sub.getPlan().getDurationDays() != null) ? sub.getPlan().getDurationDays() : 30;
+                        sub.setEndDate(LocalDateTime.now().plusDays(days));
                         subscriptionRepository.save(sub);
                     });
-                } else if ("ADDON".equals(paymentFor)) {
-                    addOnRepository.findById(referenceId).ifPresent(addon -> {
-                        addon.setStartDate(LocalDateTime.now());
-                        addon.setEndDate(LocalDateTime.now().plusDays(30));
-                        addOnRepository.save(addon);
-                    });
                 }
+            } else if ("ADDON".equalsIgnoreCase(paymentFor)) {
+                addOnRepository.findById(referenceId).ifPresent(addon -> {
+                    addon.setIsActive(true);
+                    addon.setStartDate(LocalDateTime.now());
+                    addon.setEndDate(LocalDateTime.now().plusDays(30));
+                    addOnRepository.save(addon);
+                });
             }
         }
 

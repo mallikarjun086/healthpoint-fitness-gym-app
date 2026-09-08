@@ -150,7 +150,7 @@ const AiPlanner = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-2 mb-1">
@@ -158,8 +158,8 @@ const AiPlanner = () => {
               <Sparkles3D size={16} /> AI Training Architect
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Periodized AI Plan Wizard</h1>
-          <p className="text-xs text-text-secondary mt-0.5">Synthesize an anthropometrically calibrated training split and precision nutrition chart.</p>
+          <h1 className="heading-xl text-text-primary">Periodized AI Plan Wizard</h1>
+          <p className="body-sm text-text-secondary mt-0.5">Synthesize an anthropometrically calibrated training split and precision nutrition chart.</p>
         </header>
 
         {currentStep < 4 ? (

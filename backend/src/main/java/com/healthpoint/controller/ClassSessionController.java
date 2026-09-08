@@ -19,6 +19,11 @@ public class ClassSessionController {
         this.classSessionService = classSessionService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<ClassSession>> getAllSessions() {
+        return ResponseEntity.ok(classSessionService.getUpcomingSessions());
+    }
+
     @GetMapping("/upcoming")
     public ResponseEntity<List<ClassSession>> getUpcomingSessions() {
         return ResponseEntity.ok(classSessionService.getUpcomingSessions());

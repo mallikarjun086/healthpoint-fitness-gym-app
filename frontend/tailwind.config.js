@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import { colors, shadows, radii, typography } from './src/tokens/designTokens.js';
+
 export default {
   content: [
     "./index.html",
@@ -7,33 +9,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#0C0C0E", // Warm near-black
-        surface: "#18181B", // Matte dark surface
-        "surface-elevated": "#202024",
-        "surface-hover": "#27272D",
-        border: "#27272A", // Subtle hairline divider
-        "border-light": "#3F3F46",
-        primary: "#5B6EFF", // Functional cobalt blue
-        "primary-dark": "#4755E8",
-        "accent-violet": "#A855F7", // Signature hero accent
-        "text-primary": "#F2F2F0", // Warm off-white
-        "text-secondary": "#8C8C91", // Slate secondary
-        "text-muted": "#52525B",
+        background: colors.background,
+        'background-subtle': colors['background-subtle'],
+        surface: colors.surface,
+        'surface-card': colors['surface-card'],
+        'surface-elevated': colors['surface-elevated'],
+        'surface-hover': colors['surface-hover'],
+        'surface-active': colors['surface-active'],
+        'surface-glass': colors['surface-glass'],
+        'surface-glass-border': colors['surface-glass-border'],
+        border: colors.border,
+        'border-light': colors['border-light'],
+        'border-subtle': colors['border-subtle'],
+        'border-focus': colors['border-focus'],
+        primary: colors.primary,
+        'primary-hover': colors['primary-hover'],
+        'primary-dark': colors['primary-dark'],
+        'primary-subtle': colors['primary-subtle'],
+        'primary-glow': colors['primary-glow'],
+        'text-primary': colors['text-primary'],
+        'text-secondary': colors['text-secondary'],
+        'text-muted': colors['text-muted'],
+        'text-inverse': colors['text-inverse'],
+        ...colors.status,
       },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Outfit', 'Inter', 'sans-serif'],
+      fontFamily: typography.fontFamily,
+      letterSpacing: typography.letterSpacing,
+      borderRadius: radii,
+      boxShadow: {
+        sm: shadows.sm,
+        card: shadows.card,
+        elevated: shadows.elevated,
+        modal: shadows.modal,
+        accent: shadows.accent,
+        glow: shadows.glow,
+        inner: shadows.inner,
+        panel: shadows.card,
+        hero: shadows.accent,
       },
       backgroundImage: {
-        'gradient-hero': 'linear-gradient(135deg, #5B6EFF 0%, #A855F7 100%)',
-        'gradient-hero-subtle': 'linear-gradient(135deg, rgba(91, 110, 255, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%)',
-        'gradient-surface': 'linear-gradient(180deg, #18181B 0%, #111113 100%)',
-        'gradient-pass': 'linear-gradient(135deg, #222228 0%, #16161A 50%, #241C30 100%)',
-      },
-      boxShadow: {
-        'panel': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
-        'hero': '0 10px 30px -5px rgba(91, 110, 255, 0.25)',
-        'pass': '0 20px 40px -10px rgba(0, 0, 0, 0.7)',
+        'gradient-accent': 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+        'gradient-surface': 'linear-gradient(180deg, #14151B 0%, #0F1014 100%)',
+        'gradient-glass': 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%)',
       },
     },
   },

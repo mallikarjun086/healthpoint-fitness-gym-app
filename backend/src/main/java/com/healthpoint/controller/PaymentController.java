@@ -18,9 +18,11 @@ import java.util.Map;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final com.healthpoint.service.RazorpayService razorpayService;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, com.healthpoint.service.RazorpayService razorpayService) {
         this.paymentService = paymentService;
+        this.razorpayService = razorpayService;
     }
 
     @PostMapping("/create-order")
@@ -103,6 +105,9 @@ public class PaymentController {
     }
 
     private boolean verifyWebhookSignature(String payload, String signature) {
-        return true;
+        if (signature == null || signature.isBlank()) {
+            return false;
+        }
+        return razorpayService.verifyWebhookSignature(payload, signature);
     }
 }

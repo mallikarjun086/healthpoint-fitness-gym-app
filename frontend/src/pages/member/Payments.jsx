@@ -61,7 +61,7 @@ const Payments = () => {
       const { orderId, amount, currency } = orderRes.data;
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_hp_demo',
         amount: amount * 100,
         currency: currency,
         name: "HealthPoint Fitness",
@@ -111,46 +111,46 @@ const Payments = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
       
-      <main className="flex-1 ml-64 p-8">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8">
         <header className="mb-8 border-b border-border pb-6">
           <div className="flex items-center gap-2 mb-1">
             <span className="badge-accent">Account Billing</span>
           </div>
-          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Billing & Subscriptions</h1>
-          <p className="text-xs text-text-secondary mt-0.5">Manage your active membership tier, invoices, and transaction ledger.</p>
+          <h1 className="heading-xl text-text-primary">Billing & Subscriptions</h1>
+          <p className="body-sm text-text-secondary mt-0.5">Manage your active membership tier, invoices, and transaction ledger.</p>
         </header>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Active Plan Card */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="panel p-6 space-y-6">
+            <div className="panel-card p-6 space-y-6">
               <div className="flex justify-between items-start">
                 <div>
                   <div className="flex items-center gap-1.5 mb-1">
                     <ShieldCheck className="w-4 h-4 text-primary" />
                     <span className="badge-accent text-[10px]">Active Tier</span>
                   </div>
-                  <h2 className="text-xl font-bold text-text-primary">VIP Elite Annual Plan</h2>
+                  <h2 className="heading-md text-text-primary">VIP Elite Annual Plan</h2>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] text-text-secondary uppercase font-semibold">Renewal Date</div>
+                  <div className="caption">Renewal Date</div>
                   <div className="text-sm font-semibold text-text-primary font-mono">Oct 12, 2026</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="p-3.5 rounded-xl bg-surface-elevated border border-border">
-                  <div className="text-[10px] text-text-secondary font-semibold uppercase">Effective Rate</div>
-                  <div className="text-lg stat-number text-text-primary mt-0.5">₹2,499 / mo</div>
+                  <div className="caption">Effective Rate</div>
+                  <div className="text-lg stat-display text-text-primary mt-0.5">₹2,499 / mo</div>
                 </div>
                 <div className="p-3.5 rounded-xl bg-surface-elevated border border-border">
-                  <div className="text-[10px] text-text-secondary font-semibold uppercase">Membership Status</div>
+                  <div className="caption">Membership Status</div>
                   <div className="text-sm font-semibold text-emerald-400 flex items-center gap-1.5 mt-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Active
                   </div>
                 </div>
                 <div className="p-3.5 rounded-xl bg-surface-elevated border border-border">
-                  <div className="text-[10px] text-text-secondary font-semibold uppercase">Payment Method</div>
+                  <div className="caption">Payment Method</div>
                   <div className="text-xs font-medium text-text-primary flex items-center gap-1.5 mt-1 font-mono">
                     <CreditCard className="w-3.5 h-3.5 text-primary" /> •••• 4421
                   </div>

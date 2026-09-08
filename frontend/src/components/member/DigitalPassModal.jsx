@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, QrCode, ShieldCheck, Users, Sparkles, CheckCircle2, Wifi, Zap } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 
 const DigitalPassModal = ({ isOpen, onClose, userName = "Alex Rivers", role = "MEMBER" }) => {
+  const { user } = useAuth();
   const cardRef = useRef(null);
   const [occupancy, setOccupancy] = useState({ activeOccupancy: 42, capacityLimit: 150, peakHours: "5:00 PM - 8:00 PM" });
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -12,8 +14,10 @@ const DigitalPassModal = ({ isOpen, onClose, userName = "Alex Rivers", role = "M
 
   useEffect(() => {
     if (isOpen) {
-      axios.get('http://localhost:8085/api/attendance/today')
-        .then(res => setOccupancy(res.data))
+      api.get('/attendance/today')
+        .then(res => {
+          if (res.data) setOccupancy(res.data);
+        })
         .catch(() => {});
     }
   }, [isOpen]);
@@ -41,7 +45,8 @@ const DigitalPassModal = ({ isOpen, onClose, userName = "Alex Rivers", role = "M
   };
 
   const handleSelfCheckIn = () => {
-    axios.post('http://localhost:8085/api/attendance/check-in', { userId: 1 })
+    const currentUserId = user?.id || 1;
+    api.post('/attendance/check-in', { userId: currentUserId })
       .then(() => {
         setIsCheckedIn(true);
         toast.success("Access Granted! Welcome to HealthPoint Fitness Club.", { icon: "✨" });

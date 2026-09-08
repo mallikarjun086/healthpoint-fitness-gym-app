@@ -77,16 +77,16 @@ const GoalSetup = () => {
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar />
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <div className="mb-8 border-b border-border pb-6">
           <div className="flex items-center gap-2 text-primary mb-1">
             <span className="badge-accent">Goal Setup Wizard</span>
           </div>
-          <h1 className="text-2xl font-bold text-text-primary tracking-tight">
+          <h1 className="heading-xl text-text-primary">
             Calibrate Your Training Blueprint
           </h1>
-          <p className="text-xs text-text-secondary mt-0.5">Input your baseline metrics to synthesize a periodized workout and nutrition split.</p>
+          <p className="body-sm text-text-secondary mt-0.5">Input your baseline metrics to synthesize a periodized workout and nutrition split.</p>
         </div>
 
         {/* Progress Steps */}

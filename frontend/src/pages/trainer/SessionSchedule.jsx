@@ -91,15 +91,15 @@ const SessionSchedule = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar role="trainer" />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="badge-accent">Master Trainer Schedule</span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">PT Sessions & Studio Clinics</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Manage 1-on-1 personal coaching slots, group clinics, and calendar availability.</p>
+            <h1 className="heading-xl text-text-primary">PT Sessions & Studio Clinics</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Manage 1-on-1 personal coaching slots, group clinics, and calendar availability.</p>
           </div>
 
           <button
@@ -112,37 +112,37 @@ const SessionSchedule = () => {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Today's Sessions</span>
-            <div className="text-2xl stat-number text-text-primary">3 Sessions</div>
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Today's Sessions</span>
+            <div className="text-2xl stat-display text-text-primary">3 Sessions</div>
             <div className="text-[11px] text-primary font-medium">Next: Alex Rivers (03:00 PM)</div>
           </div>
 
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Weekly Booked</span>
-            <div className="text-2xl stat-number text-text-primary">28 Hours</div>
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Weekly Booked</span>
+            <div className="text-2xl stat-display text-text-primary">28 Hours</div>
             <div className="text-[11px] text-text-secondary font-medium">85% Capacity</div>
           </div>
 
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Show-Up Rate</span>
-            <div className="text-2xl stat-number text-text-primary">98%</div>
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Show-Up Rate</span>
+            <div className="text-2xl stat-display text-text-primary">98%</div>
             <div className="text-[11px] text-emerald-400 font-medium">High adherence</div>
           </div>
         </div>
 
         {/* Weekly Day Strip */}
-        <div className="panel p-3.5 mb-6">
+        <div className="panel-card p-3.5 mb-6">
           <div className="flex items-center justify-between overflow-x-auto gap-2">
             {daysOfWeek.map((day, idx) => (
               <div
                 key={day}
                 className={`flex-1 min-w-[90px] p-2.5 rounded-xl text-center transition-all ${
-                  idx === 2 ? 'bg-primary text-white font-semibold' : 'bg-surface-elevated text-text-secondary hover:text-text-primary'
+                  idx === 2 ? 'bg-primary text-white font-semibold shadow-sm' : 'bg-surface-elevated text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <div className="text-[10px] uppercase font-medium">{day.slice(0, 3)}</div>
-                <div className="text-sm stat-number mt-0.5">{28 + idx > 31 ? (28 + idx) - 31 : 28 + idx}</div>
+                <div className="text-sm stat-display mt-0.5">{28 + idx > 31 ? (28 + idx) - 31 : 28 + idx}</div>
                 <div className="text-[10px] opacity-80">{idx === 2 ? '3 Slots' : idx === 6 ? 'Off' : '4 Slots'}</div>
               </div>
             ))}
@@ -151,14 +151,14 @@ const SessionSchedule = () => {
 
         {/* Sessions List */}
         <div className="space-y-3">
-          <h3 className="text-base font-bold text-text-primary">
+          <h3 className="heading-md text-text-primary">
             Upcoming Appointments
           </h3>
 
           {sessions.map((s, idx) => (
             <div
               key={s.id || idx}
-              className="panel p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+              className="panel-card p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
             >
               <div className="flex items-center gap-3.5">
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">

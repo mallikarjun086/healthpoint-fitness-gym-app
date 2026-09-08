@@ -37,7 +37,12 @@ public class TrainerController {
     }
 
     @GetMapping("/clients")
-    public ResponseEntity<List<Map<String, Object>>> getAssignedClients(@RequestParam(required = false) Long trainerId) {
+    public ResponseEntity<List<Map<String, Object>>> getAssignedClients(
+            @RequestParam(required = false) Long trainerId,
+            org.springframework.security.core.Authentication auth) {
+        if (trainerId == null && auth != null && auth.getPrincipal() instanceof Long) {
+            trainerId = (Long) auth.getPrincipal();
+        }
         // Fallback to first trainer if not specified
         if (trainerId == null) {
             Optional<User> trainerOpt = userRepo.findByEmail("trainer@hp.com");
@@ -90,8 +95,20 @@ public class TrainerController {
     }
 
     @PostMapping("/assign-client")
-    public ResponseEntity<Map<String, Object>> assignClient(@RequestBody Map<String, Object> payload) {
-        Long trainerId = Long.valueOf(payload.get("trainerId").toString());
+    public ResponseEntity<Map<String, Object>> assignClient(
+            @RequestBody Map<String, Object> payload,
+            org.springframework.security.core.Authentication auth) {
+        Long trainerId = null;
+        if (payload.containsKey("trainerId") && payload.get("trainerId") != null) {
+            trainerId = Long.valueOf(payload.get("trainerId").toString());
+        } else if (auth != null && auth.getPrincipal() instanceof Long) {
+            trainerId = (Long) auth.getPrincipal();
+        }
+        if (trainerId == null) {
+            Optional<User> trainerOpt = userRepo.findByEmail("trainer@hp.com");
+            trainerId = trainerOpt.isPresent() ? trainerOpt.get().getId() : 2L;
+        }
+
         Long clientId = Long.valueOf(payload.get("clientId").toString());
         String notes = payload.containsKey("notes") ? payload.get("notes").toString() : "Assigned personal trainer";
 

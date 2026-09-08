@@ -2,13 +2,17 @@ import { motion } from 'framer-motion';
 import { 
   Check, 
   Star, 
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
 import TiltCard from '../../components/ui/TiltCard';
 import CountUp from '../../components/ui/CountUp';
 import { Sparkles3D, Shield3D, Dumbbell3D, Zap3D } from '../../components/ui/Icon3D';
+import { motionTokens } from '../../tokens/designTokens';
 
 const PricingPage = () => {
   const plans = [
@@ -16,12 +20,12 @@ const PricingPage = () => {
       name: "Basic Access",
       price: 999,
       period: "/month",
-      description: "Essential tools for individual athletes starting structured programming.",
+      description: "Essential tools for athletes starting structured programming.",
       features: [
-        "Standard Workout Library",
-        "Basic Diet Guidelines",
+        "Standard Workout Library & Splits",
+        "Basic Macro Distribution Guidelines",
         "Community Standings Access",
-        "Mobile Digital Pass"
+        "Contactless Mobile Digital Pass"
       ],
       cta: "Start Free Trial",
       popular: false
@@ -30,14 +34,14 @@ const PricingPage = () => {
       name: "Elite Performance",
       price: 2999,
       period: "/month",
-      description: "Signature tier for serious athletes with AI blueprints & coach messaging.",
+      description: "Signature tier for athletes with AI blueprints & coach messaging.",
       features: [
         "Everything in Basic Access",
         "AI Periodized Split Architect",
-        "Personalized Macro Balance",
+        "Personalized Macro Load Targets",
         "Biomechanical Muscle Heatmap",
         "Dedicated Master Trainer Chat",
-        "Advanced Volume Telemetry"
+        "Advanced Volume Telemetry & RPE"
       ],
       cta: "Join Elite Club",
       popular: true
@@ -46,11 +50,11 @@ const PricingPage = () => {
       name: "Pro Conditioning",
       price: 1499,
       period: "/month",
-      description: "Intermediate protocols for consistent progressive overload gains.",
+      description: "Intermediate protocols for progressive overload strength.",
       features: [
         "Everything in Basic Access",
-        "Custom Split Creator",
-        "Advanced Progress Tracking",
+        "Custom Split Builder & Presets",
+        "Advanced Volume Load Metrics",
         "Workout Log History & Notes"
       ],
       cta: "Go Pro",
@@ -59,49 +63,54 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-text-primary pt-28 pb-20 px-6">
+    <div className="min-h-screen bg-background text-text-primary pt-28 pb-20 px-6 relative overflow-hidden">
       <Navbar />
 
+      {/* Ambient Lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[180px] pointer-events-none" />
+
       {/* Header */}
-      <header className="max-w-4xl mx-auto text-center mb-16">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-elevated border border-border mb-4">
+      <header className="max-w-4xl mx-auto text-center mb-16 space-y-3 relative z-10">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-elevated border border-border">
           <Sparkles3D size={16} />
-          <span className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Invest in Your Performance</span>
+          <span className="caption">Invest in Your Performance</span>
         </div>
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+        <h1 className="heading-xl sm:text-5xl text-text-primary">
           Transparent Membership Tiers
         </h1>
-        <p className="text-text-secondary text-sm max-w-xl mx-auto leading-relaxed">
-          Choose the level of guidance and telemetry that matches your athletic ambition. Cancel anytime with zero contracts.
+        <p className="body-md max-w-xl mx-auto">
+          Choose the level of biomechanics guidance and telemetry matching your goals. Cancel anytime with zero contracts.
         </p>
       </header>
 
       {/* Pricing Cards */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-        {plans.map((plan, i) => (
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch relative z-10">
+        {plans.map((plan) => (
           <TiltCard
             key={plan.name}
             maxTilt={plan.popular ? 4 : 3}
-            className={`panel p-8 flex flex-col justify-between ${
-              plan.popular ? 'border-primary/50 bg-surface-elevated shadow-hero' : ''
+            className={`p-8 flex flex-col justify-between rounded-2xl ${
+              plan.popular 
+                ? 'panel-elevated border-primary/50 shadow-accent' 
+                : 'panel-card'
             }`}
           >
             <div>
               {plan.popular && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-semibold uppercase tracking-wider mb-4">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 text-[10px] font-semibold uppercase tracking-wider mb-4">
                   <Star className="w-3 h-3 fill-primary" /> Most Popular
                 </div>
               )}
 
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-text-primary mb-1">{plan.name}</h3>
+                <h3 className="text-xl font-bold text-text-primary font-display">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-3xl stat-number text-text-primary">
-                    <CountUp value={plan.price} prefix="₹" />
+                  <span className="text-3xl stat-display text-text-primary">
+                    <CountUp target={plan.price} prefix="₹" />
                   </span>
                   <span className="text-text-secondary text-xs font-medium">{plan.period}</span>
                 </div>
-                <p className="text-text-secondary text-xs mt-3 leading-relaxed">
+                <p className="body-sm text-text-secondary mt-3">
                   {plan.description}
                 </p>
               </div>
@@ -122,8 +131,8 @@ const PricingPage = () => {
               to="/register" 
               className={`w-full py-3 rounded-xl text-center text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
                 plan.popular 
-                ? 'btn-hero' 
-                : 'btn-secondary'
+                  ? 'btn-hero shadow-accent' 
+                  : 'btn-secondary'
               }`}
             >
               <span>{plan.cta}</span>
@@ -134,18 +143,18 @@ const PricingPage = () => {
       </div>
 
       {/* Trust Badges */}
-      <div className="max-w-4xl mx-auto mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 text-center border-t border-border pt-12">
+      <div className="max-w-4xl mx-auto mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 text-center border-t border-border pt-12 relative z-10">
         {[
-          { IconComponent: Shield3D, label: "Secure Payments" },
-          { IconComponent: Zap3D, label: "Instant Access" },
-          { IconComponent: Sparkles3D, label: "AI Blueprints" },
-          { IconComponent: Dumbbell3D, label: "Pro Content" }
+          { icon: Shield3D, label: "Secure Payments" },
+          { icon: Zap3D, label: "Instant Access" },
+          { icon: Sparkles3D, label: "AI Blueprints" },
+          { icon: Dumbbell3D, label: "Pro Content" }
         ].map((badge) => (
           <div key={badge.label} className="flex flex-col items-center gap-2">
-            <div className="p-2 rounded-xl bg-surface-elevated border border-border">
-              <badge.IconComponent size={20} />
+            <div className="p-2.5 rounded-xl bg-surface-elevated border border-border shadow-sm">
+              <badge.icon size={22} />
             </div>
-            <span className="text-[11px] font-medium text-text-secondary">{badge.label}</span>
+            <span className="caption">{badge.label}</span>
           </div>
         ))}
       </div>

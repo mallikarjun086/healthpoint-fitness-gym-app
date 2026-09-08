@@ -39,4 +39,12 @@ public class RazorpayService {
 
         return Utils.verifySignature(payload, signature, keySecret);
     }
+
+    public boolean verifyWebhookSignature(String payload, String signature) {
+        try {
+            return Utils.verifyWebhookSignature(payload, signature, keySecret);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

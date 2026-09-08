@@ -70,7 +70,8 @@ const TrainerChat = () => {
   const fetchActiveConversation = async () => {
     if (!activeClient?.clientId) return;
     try {
-      const res = await api.get(`/chat/conversation?user1=2&user2=${activeClient.clientId}`);
+      const trainerId = user?.id || 2;
+      const res = await api.get(`/chat/conversation?user1=${trainerId}&user2=${activeClient.clientId}`);
       if (res.data && res.data.length > 0) {
         setActiveClient(prev => ({
           ...prev,
@@ -86,10 +87,13 @@ const TrainerChat = () => {
     e.preventDefault();
     if (!replyMessage.trim()) return;
 
+    const trainerId = user?.id || 2;
+    const trainerName = user?.name || 'Master Trainer Alex';
+
     const newMsg = {
       id: Date.now(),
-      senderId: 2,
-      senderName: 'Master Trainer Alex',
+      senderId: trainerId,
+      senderName: trainerName,
       receiverId: activeClient.clientId,
       receiverName: activeClient.clientName,
       message: replyMessage.trim(),
@@ -127,22 +131,22 @@ const TrainerChat = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar role="trainer" />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden flex flex-col h-screen">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden flex flex-col h-screen">
         <header className="mb-4 flex justify-between items-center pb-4 border-b border-border">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="badge-accent">Coaching Feed</span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Client Messaging Center</h1>
+            <h1 className="heading-xl text-text-primary">Client Messaging Center</h1>
           </div>
         </header>
 
         <div className="flex-1 grid grid-cols-12 gap-5 overflow-hidden">
           {/* Client Roster List */}
-          <div className="col-span-4 panel p-4 flex flex-col justify-between overflow-hidden">
+          <div className="col-span-12 md:col-span-4 panel-card p-4 flex flex-col justify-between overflow-hidden">
             <div>
               <div className="relative mb-3">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input
                   type="text"
                   placeholder="Search client roster..."
@@ -159,7 +163,7 @@ const TrainerChat = () => {
                     onClick={() => setActiveClient(client)}
                     className={`p-3 rounded-xl cursor-pointer transition-all border ${
                       activeClient.clientId === client.clientId
-                        ? 'bg-primary/10 border-primary text-text-primary'
+                        ? 'bg-primary/10 border-primary text-text-primary shadow-sm'
                         : 'bg-surface-elevated border-border hover:border-border-light text-text-secondary'
                     }`}
                   >
@@ -176,11 +180,11 @@ const TrainerChat = () => {
           </div>
 
           {/* Active Chat Conversation */}
-          <div className="col-span-8 panel p-5 flex flex-col justify-between overflow-hidden">
+          <div className="col-span-12 md:col-span-8 panel-card p-5 flex flex-col justify-between overflow-hidden">
             {/* Header */}
             <div className="pb-3 border-b border-border flex justify-between items-center">
               <div>
-                <h3 className="text-base font-bold text-text-primary flex items-center gap-2">
+                <h3 className="heading-md text-text-primary flex items-center gap-2">
                   {activeClient.clientName}
                   <span className="badge-accent text-[10px]">{activeClient.goal}</span>
                 </h3>
@@ -197,7 +201,7 @@ const TrainerChat = () => {
                   <div key={msg.id || idx} className={`flex ${isTrainer ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-md p-3.5 rounded-xl text-xs leading-relaxed ${
                       isTrainer
-                        ? 'bg-primary text-white font-medium rounded-tr-none'
+                        ? 'bg-primary text-white font-medium rounded-tr-none shadow-sm'
                         : 'bg-surface-elevated border border-border text-text-primary rounded-tl-none'
                     }`}>
                       <div className="font-medium text-[10px] mb-0.5 opacity-80">{msg.senderName}</div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Sparkles, Send, X } from 'lucide-react';
-import axios from 'axios';
+import { aiService } from '../../api/ai';
 
 const AiCoachAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,17 +15,23 @@ const AiCoachAssistant = () => {
     if (!inputMsg.trim()) return;
 
     const userText = inputMsg;
-    setMessages(prev => [...prev, { sender: 'user', text: userText }]);
+    const updatedMessages = [...messages, { sender: 'user', text: userText }];
+    setMessages(updatedMessages);
     setInputMsg('');
     setIsLoading(true);
 
-    axios.post('http://localhost:8085/api/ai/fitness-engine/recommend', {
-      userGoal: userText,
-      fitnessLevel: "INTERMEDIATE"
+    const history = updatedMessages.map(m => ({
+      role: m.sender === 'user' ? 'user' : 'assistant',
+      content: m.text
+    }));
+
+    aiService.chat({
+      message: userText,
+      conversationHistory: history
     })
       .then(res => {
         setIsLoading(false);
-        const reply = res.data.workoutRecommendation || "Based on your progressive overload target, focus on 4 sets with a 3-0-1-0 tempo at RPE 8.5 with 90s rest periods.";
+        const reply = res.reply || res.message || "Based on your progressive overload target, focus on 4 sets with a 3-0-1-0 tempo at RPE 8.5 with 90s rest periods.";
         setMessages(prev => [...prev, { sender: 'ai', text: reply }]);
       })
       .catch(() => {

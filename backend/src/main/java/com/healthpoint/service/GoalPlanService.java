@@ -234,7 +234,8 @@ public class GoalPlanService {
     private String generateDietPlan(String goal, Map<String, Integer> macros) {
         String[][] meals;
 
-        switch (goal.toUpperCase()) {
+        String sanitizedGoal = (goal != null && !goal.isBlank()) ? goal.trim().toUpperCase() : "AESTHETIC";
+        switch (sanitizedGoal) {
             case "COMPETITION": meals = getCompetitionDiet(); break;
             case "AESTHETIC": meals = getAestheticDiet(); break;
             case "POWERLIFTING": case "STRENGTH": meals = getStrengthDiet(); break;

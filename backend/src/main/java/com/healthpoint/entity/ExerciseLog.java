@@ -17,4 +17,6 @@ public class ExerciseLog {
     private int setsCompleted;
     private int repsCompleted;
     private double weightKg;
+    private Integer rpe;
+    private String notes;
 }

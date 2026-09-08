@@ -95,7 +95,7 @@ const AttendancePage = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
@@ -104,8 +104,8 @@ const AttendancePage = () => {
                 <QrCode3D size={18} /> Facility Check-in
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Attendance & Consistency</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Contactless digital pass, monthly check-in history, and workout streaks.</p>
+            <h1 className="heading-xl text-text-primary">Attendance & Consistency</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Contactless digital pass, monthly check-in history, and workout streaks.</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -127,53 +127,53 @@ const AttendancePage = () => {
 
         {/* Stat Row with 3D Tilt & Count-up */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Current Streak</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Current Streak</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Flame3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={stats.streakDays || 7} suffix=" Days" />
             </div>
             <div className="text-[11px] text-emerald-400 font-medium">Active daily streak</div>
           </TiltCard>
 
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Monthly Visits</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Monthly Visits</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Calendar3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={stats.monthlyCheckIns || 18} suffix=" Visits" />
             </div>
             <div className="text-[11px] text-text-secondary font-medium">92% monthly compliance</div>
           </TiltCard>
 
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Annual Total</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Annual Total</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Trophy3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={stats.totalVisitsYear || 142} />
             </div>
             <div className="text-[11px] text-text-secondary font-medium">Year-to-date sessions</div>
           </TiltCard>
 
-          <TiltCard maxTilt={4} className="panel p-5 space-y-2">
+          <TiltCard maxTilt={4} className="panel-card p-5 space-y-2">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-medium text-text-secondary">Gym Floor Status</span>
-              <div className="p-1.5 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
+              <span className="caption">Gym Floor Status</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border flex items-center justify-center">
                 <Activity3D size={22} />
               </div>
             </div>
-            <div className="text-3xl stat-number text-text-primary">
+            <div className="text-3xl stat-display text-text-primary">
               <CountUp value={occupancy.activeOccupancy} /> <span className="text-xs font-normal text-text-secondary">/ {occupancy.capacityLimit}</span>
             </div>
             <div className="text-[11px] text-text-secondary font-medium">Peak: {occupancy.peakHours}</div>

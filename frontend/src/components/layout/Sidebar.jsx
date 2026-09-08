@@ -20,13 +20,15 @@ import {
   UserPlus,
   Bell,
   Menu,
-  X
+  X,
+  ChevronRight
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import NotificationPanel from '../common/NotificationPanel';
 import { Dumbbell3D } from '../ui/Icon3D';
+import { motionTokens } from '../../tokens/designTokens';
 
 const Sidebar = ({ role }) => {
   const location = useLocation();
@@ -81,45 +83,46 @@ const Sidebar = ({ role }) => {
   return (
     <>
       {/* Mobile Top Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-surface border-b border-border z-50 flex items-center justify-between px-4">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-surface/90 backdrop-blur-md border-b border-border z-50 flex items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="p-1 rounded-xl bg-surface-elevated border border-border">
-            <Dumbbell3D size={24} />
+          <div className="p-1 rounded-xl bg-surface-elevated border border-border shadow-sm">
+            <Dumbbell3D size={22} />
           </div>
-          <span className="text-base font-bold text-text-primary tracking-tight">HealthPoint</span>
+          <span className="text-sm font-bold text-text-primary tracking-tight font-display">HealthPoint</span>
         </Link>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsNotificationOpen(true)}
-            className="p-2 text-text-secondary hover:text-text-primary relative"
+            className="p-2 text-text-secondary hover:text-text-primary relative rounded-xl hover:bg-surface-elevated transition-colors"
           >
             <Bell className="w-5 h-5" />
             <span className="w-2 h-2 rounded-full bg-primary absolute top-1.5 right-1.5"></span>
           </button>
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className="p-2 text-text-secondary hover:text-text-primary"
+            className="p-2 text-text-secondary hover:text-text-primary rounded-xl hover:bg-surface-elevated transition-colors"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Desktop Sidebar & Mobile Drawer */}
       <aside className={`
-        fixed left-0 top-0 z-40 h-screen w-64 bg-surface border-r border-border flex flex-col justify-between transition-transform duration-200
+        fixed left-0 top-0 z-40 h-screen w-64 bg-surface border-r border-border flex flex-col justify-between transition-transform duration-200 shadow-card
         ${isOpen ? 'translate-x-0 pt-16 md:pt-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div className="flex flex-col h-full justify-between p-5">
+        <div className="flex flex-col h-full justify-between p-4">
           <div className="overflow-y-auto pr-1">
-            <div className="hidden md:flex items-center justify-between mb-6 px-1">
+            {/* Sidebar Brand Header */}
+            <div className="hidden md:flex items-center justify-between mb-5 px-2 pt-1">
               <Link to="/" className="flex items-center gap-2.5 group">
-                <div className="p-1.5 bg-surface-elevated border border-border rounded-xl group-hover:scale-105 transition-transform shadow-panel">
-                  <Dumbbell3D size={24} />
+                <div className="p-1.5 bg-surface-elevated border border-border-light rounded-xl group-hover:scale-105 transition-transform shadow-sm">
+                  <Dumbbell3D size={22} />
                 </div>
                 <div>
-                  <span className="text-base font-bold tracking-tight text-text-primary block leading-none">HealthPoint</span>
-                  <span className="text-[10px] text-text-secondary font-medium tracking-wide">Fitness Platform</span>
+                  <span className="text-sm font-bold tracking-tight text-text-primary block leading-none font-display">HealthPoint</span>
+                  <span className="text-[10px] text-text-muted font-medium tracking-wide uppercase">Athletic OS</span>
                 </div>
               </Link>
 
@@ -128,12 +131,13 @@ const Sidebar = ({ role }) => {
                 className="p-2 rounded-xl bg-surface-elevated hover:bg-surface-hover text-text-secondary hover:text-text-primary relative transition-colors border border-border"
                 title="Notifications"
               >
-                <Bell className="w-4 h-4" />
+                <Bell className="w-3.5 h-3.5" />
                 <span className="w-1.5 h-1.5 rounded-full bg-primary absolute top-1.5 right-1.5"></span>
               </button>
             </div>
 
-            <nav className="space-y-0.5">
+            {/* Navigation Link List */}
+            <nav className="space-y-1">
               {items.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -141,43 +145,62 @@ const Sidebar = ({ role }) => {
                     key={item.path} 
                     to={item.path} 
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-xs font-medium relative group ${
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all text-xs font-medium relative group ${
                       isActive 
-                        ? 'text-white bg-primary/10 border border-primary/20 font-semibold shadow-sm' 
+                        ? 'text-text-primary bg-primary/15 border border-primary/30 font-semibold shadow-sm' 
                         : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated'
                     }`}
                   >
-                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-primary' : 'text-text-secondary group-hover:text-text-primary'}`} />
-                    <span>{item.label}</span>
-                    {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary'}`} />
+                    <span className="truncate">{item.label}</span>
+                    {isActive && (
+                      <motion.div 
+                        layoutId="activePill"
+                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"
+                        transition={motionTokens.spring.default}
+                      />
+                    )}
                   </Link>
                 );
               })}
             </nav>
           </div>
 
-          <div className="pt-4 border-t border-border space-y-3 shrink-0">
-            {/* Persona Switcher */}
-            <div className="p-2.5 rounded-xl bg-surface-elevated border border-border space-y-1.5">
-              <div className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
-                Persona Switcher
+          {/* Bottom Controls & Persona Switcher */}
+          <div className="pt-3 border-t border-border space-y-2.5 shrink-0">
+            {/* Persona Switcher Capsule */}
+            <div className="p-2 rounded-xl bg-surface-elevated border border-border space-y-1">
+              <div className="text-[9px] font-semibold text-text-muted uppercase tracking-wider px-1">
+                Active Persona
               </div>
               <div className="grid grid-cols-3 gap-1 text-[10px] font-medium">
                 <button
                   onClick={() => navigate('/member/dashboard')}
-                  className={`py-1 rounded-lg text-center transition-all ${location.pathname.startsWith('/member') ? 'bg-primary text-white font-semibold' : 'text-text-secondary hover:text-text-primary bg-surface'}`}
+                  className={`py-1 rounded-lg text-center transition-all ${
+                    location.pathname.startsWith('/member') 
+                      ? 'bg-primary text-white font-semibold shadow-sm' 
+                      : 'text-text-secondary hover:text-text-primary bg-surface/50'
+                  }`}
                 >
                   Member
                 </button>
                 <button
                   onClick={() => navigate('/trainer/dashboard')}
-                  className={`py-1 rounded-lg text-center transition-all ${location.pathname.startsWith('/trainer') ? 'bg-primary text-white font-semibold' : 'text-text-secondary hover:text-text-primary bg-surface'}`}
+                  className={`py-1 rounded-lg text-center transition-all ${
+                    location.pathname.startsWith('/trainer') 
+                      ? 'bg-primary text-white font-semibold shadow-sm' 
+                      : 'text-text-secondary hover:text-text-primary bg-surface/50'
+                  }`}
                 >
                   Trainer
                 </button>
                 <button
                   onClick={() => navigate('/admin/dashboard')}
-                  className={`py-1 rounded-lg text-center transition-all ${location.pathname.startsWith('/admin') ? 'bg-primary text-white font-semibold' : 'text-text-secondary hover:text-text-primary bg-surface'}`}
+                  className={`py-1 rounded-lg text-center transition-all ${
+                    location.pathname.startsWith('/admin') 
+                      ? 'bg-primary text-white font-semibold shadow-sm' 
+                      : 'text-text-secondary hover:text-text-primary bg-surface/50'
+                  }`}
                 >
                   Admin
                 </button>
@@ -188,15 +211,15 @@ const Sidebar = ({ role }) => {
               <div className="px-3 py-2 bg-surface-elevated border border-border rounded-xl flex items-center justify-between">
                 <div className="truncate">
                   <div className="text-xs font-semibold text-text-primary truncate">{user.name}</div>
-                  <div className="text-[10px] text-text-secondary uppercase tracking-wider">{user.role || currentRole}</div>
+                  <div className="text-[10px] text-text-muted uppercase tracking-wider">{user.role || currentRole}</div>
                 </div>
               </div>
             )}
             <button 
               onClick={handleLogout}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-text-secondary hover:text-red-400 hover:bg-red-500/5 transition-all text-xs font-medium"
+              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-all text-xs font-medium"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
             </button>
           </div>

@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, BarChart, Bar, CartesianGrid } from 'recharts';
 import Sidebar from '../../components/layout/Sidebar';
+import TiltCard from '../../components/ui/TiltCard';
+import CountUp from '../../components/ui/CountUp';
+import { Dollar3D, Chart3D, Shield3D, Calendar3D } from '../../components/ui/Icon3D';
 
 const RevenueAnalytics = () => {
   const revenueData = [
@@ -32,115 +35,125 @@ const RevenueAnalytics = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8">
-        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <main className="flex-1 ml-0 md:ml-64 p-4 sm:p-8">
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
-            <h1 className="text-3xl font-bold">Revenue & Payment Analytics</h1>
-            <p className="text-gray-400 mt-1">Real-time revenue tracking, subscription metrics, & Razorpay transactions.</p>
+            <span className="badge-accent text-[10px] mb-1 inline-block">Financial Telemetry</span>
+            <h1 className="heading-xl text-text-primary">Revenue & Payment Analytics</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Real-time revenue tracking, subscription metrics, & Razorpay transactions.</p>
           </div>
-          <button className="btn-premium px-6 py-2.5 text-xs flex items-center gap-2">
-            <Download className="w-4 h-4" /> Export Report
+          <button className="btn-secondary text-xs flex items-center gap-2">
+            <Download className="w-3.5 h-3.5" /> Export Report
           </button>
         </header>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 border-l-4 border-l-primary">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs font-bold text-gray-400 uppercase">Total Revenue (YTD)</span>
-              <DollarSign className="w-5 h-5 text-primary" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-3">
+            <div className="flex justify-between items-start">
+              <span className="caption">Total Revenue (YTD)</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border">
+                <Dollar3D size={20} />
+              </div>
             </div>
-            <div className="text-3xl font-black mb-1">₹16,07,000</div>
-            <div className="text-xs text-green-400 font-bold flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" /> +24% from last month
+            <div className="stat-display text-2xl sm:text-3xl text-text-primary">
+              <CountUp target={1607000} prefix="₹" />
             </div>
-          </motion.div>
+            <div className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5" /> +24% from last month
+            </div>
+          </TiltCard>
 
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6 border-l-4 border-l-blue-500">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs font-bold text-gray-400 uppercase">Active Subscriptions</span>
-              <CreditCard className="w-5 h-5 text-blue-400" />
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-3">
+            <div className="flex justify-between items-start">
+              <span className="caption">Active Subscriptions</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border">
+                <Shield3D size={20} />
+              </div>
             </div>
-            <div className="text-3xl font-black mb-1">162 Members</div>
-            <div className="text-xs text-blue-400 font-bold">₹2,999 Avg Ticket Size</div>
-          </motion.div>
+            <div className="stat-display text-2xl sm:text-3xl text-text-primary">
+              <CountUp target={162} suffix=" Members" />
+            </div>
+            <div className="text-[11px] text-text-muted font-medium">₹2,999 Avg Ticket Size</div>
+          </TiltCard>
 
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6 border-l-4 border-l-purple-500">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs font-bold text-gray-400 uppercase">Razorpay Success Rate</span>
-              <ShieldCheck className="w-5 h-5 text-purple-400" />
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-3">
+            <div className="flex justify-between items-start">
+              <span className="caption">Settlement Rate</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border">
+                <Chart3D size={20} />
+              </div>
             </div>
-            <div className="text-3xl font-black mb-1">99.4%</div>
-            <div className="text-xs text-purple-400 font-bold">Instant Webhook Verification</div>
-          </motion.div>
+            <div className="stat-display text-2xl sm:text-3xl text-text-primary">
+              <CountUp target={99.4} decimals={1} suffix="%" />
+            </div>
+            <div className="text-[11px] text-primary font-medium">Instant Webhook Verification</div>
+          </TiltCard>
 
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6 border-l-4 border-l-orange-500">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs font-bold text-gray-400 uppercase">MRR (Monthly Recurring)</span>
-              <Calendar className="w-5 h-5 text-orange-400" />
+          <TiltCard maxTilt={3} className="panel-card p-5 space-y-3">
+            <div className="flex justify-between items-start">
+              <span className="caption">Projected MRR</span>
+              <div className="p-2 rounded-xl bg-surface-elevated border border-border">
+                <Calendar3D size={20} />
+              </div>
             </div>
-            <div className="text-3xl font-black mb-1">₹3,40,000</div>
-            <div className="text-xs text-orange-400 font-bold">Projected Next Month</div>
-          </motion.div>
+            <div className="stat-display text-2xl sm:text-3xl text-text-primary">
+              <CountUp target={340900} prefix="₹" />
+            </div>
+            <div className="text-[11px] text-emerald-400 font-medium">+18% Growth Quarter</div>
+          </TiltCard>
         </div>
 
         {/* Main Charts Section */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2 glass-card p-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2 panel-card p-6 space-y-4">
+            <div className="flex justify-between items-center mb-2">
               <div>
-                <h3 className="text-lg font-bold">Monthly Revenue Trend</h3>
-                <p className="text-xs text-gray-400">Total gross earnings over time (INR)</p>
+                <h3 className="heading-md text-text-primary font-display">Monthly Revenue Trend</h3>
+                <p className="body-sm text-text-secondary">Gross recurring collections over time (INR)</p>
               </div>
-              <span className="text-xs text-primary font-bold bg-primary/10 px-3 py-1 rounded-full border border-primary/20">2024 YTD</span>
+              <span className="badge-accent">2024–2026 YTD</span>
             </div>
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={revenueData}>
                   <defs>
-                    <linearGradient id="colorRevFixed" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#5B6EFF" stopOpacity={0.35}/>
-                      <stop offset="95%" stopColor="#A855F7" stopOpacity={0}/>
+                    <linearGradient id="revCurve" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.35}/>
+                      <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272A" vertical={false} />
-                  <XAxis dataKey="month" stroke="#52525B" fontSize={12} tick={{ fill: '#8C8C91' }} axisLine={false} tickLine={false} />
-                  <YAxis stroke="#52525B" fontSize={12} tick={{ fill: '#8C8C91' }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${v/1000}k`} />
+                  <CartesianGrid strokeDasharray="2 2" stroke="#1D1F26" vertical={false} />
+                  <XAxis dataKey="month" stroke="#8F9098" tick={{ fontSize: 11, fill: '#8F9098' }} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#8F9098" tick={{ fontSize: 11, fill: '#8F9098' }} axisLine={false} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#18181B', borderColor: '#27272A', borderRadius: '12px', color: '#F2F2F0', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: '#131419', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#F4F4F6', fontSize: '12px' }}
                     formatter={(val) => [`₹${val.toLocaleString()}`, 'Revenue']}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#5B6EFF" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevFixed)" />
+                  <Area type="monotone" dataKey="revenue" stroke="#4F46E5" strokeWidth={2.5} fillOpacity={1} fill="url(#revCurve)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="glass-card p-6 flex flex-col justify-between">
+          <div className="panel-card p-6 space-y-4">
             <div>
-              <h3 className="text-lg font-bold mb-2">Revenue by Plan</h3>
-              <p className="text-xs text-gray-400 mb-6">Contribution breakdown by tier</p>
-              
-              <div className="space-y-4">
-                {planBreakdown.map((item, index) => (
-                  <div key={item.plan} className="p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-sm">{item.plan}</span>
-                      <span className="font-black text-primary">₹{item.amount.toLocaleString()}</span>
-                    </div>
-                    <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-primary h-full rounded-full" 
-                        style={{ width: `${(item.amount / 340000) * 100}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-[10px] text-gray-400 mt-2 flex justify-between">
-                      <span>{item.count} Subscribers</span>
-                      <span>{Math.round((item.amount / 340000) * 100)}% of revenue</span>
-                    </div>
+              <h3 className="heading-md text-text-primary font-display">Plan Distribution</h3>
+              <p className="body-sm text-text-secondary">Breakdown by active membership tiers</p>
+            </div>
+            <div className="space-y-4 pt-2">
+              {planBreakdown.map((item) => (
+                <div key={item.plan} className="p-3.5 rounded-xl bg-surface-elevated border border-border space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-text-primary">{item.plan}</span>
+                    <span className="stat-display text-primary font-bold">₹{item.amount.toLocaleString()}</span>
                   </div>
-                ))}
-              </div>
+                  <div className="flex justify-between text-[11px] text-text-muted">
+                    <span>{item.count} Active Athletes</span>
+                    <span>{Math.round((item.count / 162) * 100)}% of total</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

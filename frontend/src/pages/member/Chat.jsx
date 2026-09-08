@@ -101,7 +101,7 @@ const MemberChat = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden flex flex-col h-screen">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden flex flex-col h-screen">
         {/* Header */}
         <header className="mb-4 flex justify-between items-center pb-4 border-b border-border">
           <div className="flex items-center gap-3.5">
@@ -114,10 +114,10 @@ const MemberChat = () => {
 
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-text-primary">{trainer.name}</h2>
+                <h2 className="heading-md text-text-primary">{trainer.name}</h2>
                 <span className="badge-accent text-[10px]">Assigned Coach</span>
               </div>
-              <p className="text-xs text-text-secondary">{trainer.specialization}</p>
+              <p className="body-sm text-text-secondary">{trainer.specialization}</p>
             </div>
           </div>
 

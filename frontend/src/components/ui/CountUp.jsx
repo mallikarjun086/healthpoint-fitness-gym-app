@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef } from 'react';
  */
 export const CountUp = ({
   value,
+  target,
   duration = 1.2,
   decimals,
   className = '',
@@ -18,22 +19,23 @@ export const CountUp = ({
   suffix: manualSuffix,
   separator = ',',
 }) => {
+  const effectiveValue = value !== undefined ? value : target;
   const [displayValue, setDisplayValue] = useState(0);
   const elementRef = useRef(null);
   const hasAnimatedRef = useRef(false);
 
   // Parse raw value
   const parseVal = () => {
-    if (typeof value === 'number') {
+    if (typeof effectiveValue === 'number') {
       return {
         prefix: manualPrefix || '',
-        num: value,
+        num: effectiveValue,
         suffix: manualSuffix || '',
-        decimals: decimals !== undefined ? decimals : (value % 1 !== 0 ? 1 : 0),
+        decimals: decimals !== undefined ? decimals : (effectiveValue % 1 !== 0 ? 1 : 0),
       };
     }
 
-    const str = String(value || '0').trim();
+    const str = String(effectiveValue || '0').trim();
     // Match optional prefix, numeric part (with optional decimal), and suffix
     const match = str.match(/^([^0-9.-]*)([-+]?[0-9,]*\.?[0-9]+)(.*)$/);
     if (!match) {
@@ -95,7 +97,7 @@ export const CountUp = ({
       observer.disconnect();
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [value, duration, parsed.num]);
+  }, [effectiveValue, duration, parsed.num]);
 
   // Format current numeric display
   const formatNumber = (n) => {

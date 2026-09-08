@@ -87,15 +87,15 @@ const ProgressPhotos = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="badge-accent">Visual Telemetry</span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Progress Photos & Timeline</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Side-by-side physique comparison and sequential transformation timeline.</p>
+            <h1 className="heading-xl text-text-primary">Progress Photos & Timeline</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Side-by-side physique comparison and sequential transformation timeline.</p>
           </div>
 
           <button
@@ -107,11 +107,11 @@ const ProgressPhotos = () => {
         </header>
 
         {/* Interactive Comparison Showcase */}
-        <div className="panel p-6 mb-8 space-y-4">
+        <div className="panel-card p-6 mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <span className="badge-accent mb-1 inline-block">Comparison</span>
-              <h3 className="text-base font-bold text-text-primary">Before vs. After Analysis</h3>
+              <h3 className="heading-md text-text-primary">Before vs. After Analysis</h3>
             </div>
 
             <div className="flex items-center gap-3 text-xs">

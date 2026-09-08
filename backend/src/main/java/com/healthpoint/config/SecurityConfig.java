@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/membership/plans", "/api/addons/plans").permitAll()
                         .requestMatchers("/api/leads/create").permitAll()
                         .requestMatchers("/api/leads/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/users").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/trainer/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/classes/**", "/api/attendance/**", "/api/live-workout/**", "/api/biometrics/**", "/api/equipment/**", "/api/nutrition/**", "/api/chat/**", "/api/notifications/**", "/api/goals/**", "/api/diet/**", "/api/workout/**", "/api/ai/**", "/api/content/**").authenticated()

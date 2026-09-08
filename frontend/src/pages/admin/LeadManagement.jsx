@@ -153,15 +153,15 @@ const LeadManagement = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar role="admin" />
 
-      <main className="flex-1 ml-64 p-8 relative overflow-hidden">
+      <main className="flex-1 ml-0 md:ml-64 p-6 sm:p-8 relative overflow-hidden">
         {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="badge-accent">CRM Pipeline</span>
             </div>
-            <h1 className="text-2xl font-bold text-text-primary tracking-tight">Lead & Inquiry Management</h1>
-            <p className="text-xs text-text-secondary mt-0.5">Track walk-in visitors, trial pass bookings, and conversion pipeline.</p>
+            <h1 className="heading-xl text-text-primary">Lead & Inquiry Management</h1>
+            <p className="body-sm text-text-secondary mt-0.5">Track walk-in visitors, trial pass bookings, and conversion pipeline.</p>
           </div>
 
           <button
@@ -174,29 +174,29 @@ const LeadManagement = () => {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Active Inquiries</span>
-            <div className="text-2xl stat-number text-text-primary">{leads.length}</div>
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Active Inquiries</span>
+            <div className="text-2xl stat-display text-text-primary">{leads.length}</div>
             <div className="text-[11px] text-primary font-medium">Pipeline volume</div>
           </div>
 
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Trials Scheduled</span>
-            <div className="text-2xl stat-number text-text-primary">
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Trials Scheduled</span>
+            <div className="text-2xl stat-display text-text-primary">
               {leads.filter(l => l.status === 'TRIAL_SCHEDULED').length + 4}
             </div>
             <div className="text-[11px] text-text-secondary font-medium">Trial pass bookings</div>
           </div>
 
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Conversion Rate</span>
-            <div className="text-2xl stat-number text-text-primary">{conversionRate}%</div>
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Conversion Rate</span>
+            <div className="text-2xl stat-display text-text-primary">{conversionRate}%</div>
             <div className="text-[11px] text-emerald-400 font-medium">Conversion velocity</div>
           </div>
 
-          <div className="panel p-5 space-y-1.5">
-            <span className="text-xs font-medium text-text-secondary">Pipeline Revenue</span>
-            <div className="text-2xl stat-number text-text-primary">₹47,996</div>
+          <div className="panel-card p-5 space-y-1.5">
+            <span className="caption">Pipeline Revenue</span>
+            <div className="text-2xl stat-display text-text-primary">₹47,996</div>
             <div className="text-[11px] text-text-secondary font-medium">Converted memberships</div>
           </div>
         </div>

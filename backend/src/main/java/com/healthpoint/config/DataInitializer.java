@@ -24,6 +24,8 @@ public class DataInitializer implements CommandLineRunner {
     private final com.healthpoint.repository.FoodItemRepository foodItemRepository;
     private final com.healthpoint.repository.NotificationRepository notificationRepository;
     private final com.healthpoint.repository.LeadRepository leadRepository;
+    private final com.healthpoint.repository.ChallengeRepository challengeRepository;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     public DataInitializer(UserRepository userRepository,
                            MembershipPlanRepository membershipPlanRepository,
@@ -32,7 +34,9 @@ public class DataInitializer implements CommandLineRunner {
                            com.healthpoint.repository.ClassSessionRepository classSessionRepository,
                            com.healthpoint.repository.FoodItemRepository foodItemRepository,
                            com.healthpoint.repository.NotificationRepository notificationRepository,
-                           com.healthpoint.repository.LeadRepository leadRepository) {
+                           com.healthpoint.repository.LeadRepository leadRepository,
+                           com.healthpoint.repository.ChallengeRepository challengeRepository,
+                           org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
         this.userRepository = userRepository;
         this.membershipPlanRepository = membershipPlanRepository;
         this.trainerClientAssignmentRepository = trainerClientAssignmentRepository;
@@ -41,6 +45,8 @@ public class DataInitializer implements CommandLineRunner {
         this.foodItemRepository = foodItemRepository;
         this.notificationRepository = notificationRepository;
         this.leadRepository = leadRepository;
+        this.challengeRepository = challengeRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -190,6 +196,61 @@ public class DataInitializer implements CommandLineRunner {
             n.setType("COACH");
             n.setLinkUrl("/member/ai-planner");
             notificationRepository.save(n);
+        }
+
+        // Seed Default Challenges
+        if (challengeRepository.count() == 0) {
+            com.healthpoint.entity.Challenge c1 = new com.healthpoint.entity.Challenge();
+            c1.setCode("SQUAT_30_DAY");
+            c1.setTitle("30-Day Squat Mastery Challenge");
+            c1.setDescription("Complete 1,000 squats across 30 days verified by MediaPipe CV angle analysis.");
+            c1.setCategory("SQUAT");
+            c1.setTargetMetric("SQUATS_COMPLETED");
+            c1.setTargetValue(1000);
+            c1.setDurationDays(30);
+            c1.setStartDate(java.time.LocalDate.now());
+            c1.setEndDate(java.time.LocalDate.now().plusDays(30));
+            c1.setRewardBadgeCode("SQUAT_MASTER_1K");
+            c1.setIsActive(true);
+            challengeRepository.save(c1);
+
+            com.healthpoint.entity.Challenge c2 = new com.healthpoint.entity.Challenge();
+            c2.setCode("STREAK_TITAN_21");
+            c2.setTitle("21-Day Habit Transformation");
+            c2.setDescription("Maintain daily training or active recovery check-ins for 21 consecutive days.");
+            c2.setCategory("CONSISTENCY");
+            c2.setTargetMetric("DAYS_ACTIVE");
+            c2.setTargetValue(21);
+            c2.setDurationDays(21);
+            c2.setStartDate(java.time.LocalDate.now());
+            c2.setEndDate(java.time.LocalDate.now().plusDays(21));
+            c2.setRewardBadgeCode("CONSISTENCY_KING");
+            c2.setIsActive(true);
+            challengeRepository.save(c2);
+        }
+
+        syncPostgresSequences();
+    }
+
+    private void syncPostgresSequences() {
+        try {
+            String[] tables = {
+                "users", "user_profiles", "user_achievements", "user_streaks",
+                "workout_plans", "custom_workouts", "workout_logs", "wearable_connections",
+                "safety_escalations", "pain_reports", "challenges", "challenge_enrollments",
+                "payments", "membership_plans", "exercises", "diet_plans", "food_items", "leads"
+            };
+
+            for (String table : tables) {
+                try {
+                    String sql = "SELECT setval(pg_get_serial_sequence('" + table + "', 'id'), COALESCE(MAX(id), 1)) FROM " + table;
+                    jdbcTemplate.execute(sql);
+                } catch (Exception ignored) {
+                    // Ignore if sequence doesn't exist for a particular table
+                }
+            }
+        } catch (Exception e) {
+            // Sequence sync non-fatal
         }
     }
 

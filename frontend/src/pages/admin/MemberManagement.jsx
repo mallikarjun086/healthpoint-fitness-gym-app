@@ -78,120 +78,106 @@ const MemberManagement = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8">
-        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <main className="flex-1 ml-0 md:ml-64 p-4 sm:p-8">
+        <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-6">
           <div>
-            <h1 className="text-3xl font-bold">Member & Staff Management</h1>
-            <p className="text-gray-400 mt-1">View, filter, and manage all gym members and trainers.</p>
+            <span className="badge-accent text-[10px] mb-1 inline-block">Directory Control</span>
+            <h1 className="heading-xl text-text-primary">Member & Staff Management</h1>
+            <p className="body-sm text-text-secondary mt-0.5">View, filter, and manage all gym members and coaching staff.</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" /> {members.length} Total Users
+            <span className="px-3.5 py-1.5 rounded-xl bg-surface-elevated border border-border text-xs font-semibold text-text-primary flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" /> {members.length} Total Registered
             </span>
           </div>
         </header>
 
         {/* Search & Filter Bar */}
-        <div className="glass-card p-4 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
+        <div className="panel-card p-4 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <input
               type="text"
               placeholder="Search members by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-background border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:border-primary/50 text-white"
+              className="w-full bg-surface-elevated border border-border rounded-xl py-2 pl-9 pr-4 text-xs text-text-primary outline-none focus:border-primary transition-colors"
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Filter className="w-4 h-4 text-gray-500" />
-            <div className="flex gap-2">
-              {['ALL', 'MEMBER', 'TRAINER', 'ADMIN'].map((role) => (
-                <button
-                  key={role}
-                  onClick={() => setRoleFilter(role)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all ${
-                    roleFilter === role ? 'bg-primary text-black' : 'bg-white/5 text-gray-400 hover:text-white'
-                  }`}
-                >
-                  {role}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto text-xs">
+            {['ALL', 'MEMBER', 'TRAINER', 'ADMIN'].map(role => (
+              <button
+                key={role}
+                onClick={() => setRoleFilter(role)}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                  roleFilter === role ? 'bg-primary text-white font-semibold' : 'bg-surface-elevated text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {role}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Member Table */}
-        <div className="glass-card overflow-hidden">
+        {/* Member Directory Table */}
+        <div className="panel-card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-white/5 text-gray-400 text-xs font-bold uppercase tracking-wider border-b border-border">
-                <tr>
-                  <th className="p-5">User</th>
-                  <th className="p-5">Role</th>
-                  <th className="p-5">Subscription Plan</th>
-                  <th className="p-5">Joined Date</th>
-                  <th className="p-5">Status</th>
-                  <th className="p-5 text-right">Actions</th>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-border bg-surface-elevated text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+                  <th className="py-3 px-5">Member / Email</th>
+                  <th className="py-3 px-5">Role</th>
+                  <th className="py-3 px-5">Active Plan</th>
+                  <th className="py-3 px-5">Status</th>
+                  <th className="py-3 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
-                {filteredMembers.map((m, index) => (
-                  <motion.tr 
-                    key={m.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="hover:bg-white/5 transition-colors"
-                  >
-                    <td className="p-5">
+              <tbody className="divide-y divide-border text-xs">
+                {filteredMembers.map((member) => (
+                  <tr key={member.id} className="table-row-hover">
+                    <td className="py-4 px-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-bold text-primary">
-                          {m.name.charAt(0)}
+                        <div className="w-9 h-9 rounded-xl bg-surface-elevated border border-border flex items-center justify-center font-bold text-text-primary">
+                          {member.name.charAt(0)}
                         </div>
                         <div>
-                          <div className="font-bold text-white">{m.name}</div>
-                          <div className="text-xs text-gray-400 flex items-center gap-2">
-                            <span><Mail className="w-3 h-3 inline mr-1" />{m.email}</span>
-                            <span>•</span>
-                            <span><Phone className="w-3 h-3 inline mr-1" />{m.phoneNumber}</span>
-                          </div>
+                          <div className="font-semibold text-text-primary">{member.name}</div>
+                          <div className="text-[11px] text-text-muted">{member.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-5">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
-                        m.role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
-                        m.role === 'TRAINER' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                        'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    <td className="py-4 px-5">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
+                        member.role === 'ADMIN' ? 'badge-accent' :
+                        member.role === 'TRAINER' ? 'badge-hero' : 'badge-muted'
                       }`}>
-                        {m.role}
+                        {member.role}
                       </span>
                     </td>
-                    <td className="p-5 text-gray-300 font-medium">{m.plan}</td>
-                    <td className="p-5 text-gray-400">{m.joined}</td>
-                    <td className="p-5">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${
-                        m.status === 'ACTIVE' ? 'text-green-400' : 'text-rose-400'
+                    <td className="py-4 px-5 text-text-secondary font-medium">
+                      {member.plan}
+                    </td>
+                    <td className="py-4 px-5">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                        member.status === 'ACTIVE' ? 'badge-success' : 'badge-danger'
                       }`}>
-                        <span className={`w-2 h-2 rounded-full ${m.status === 'ACTIVE' ? 'bg-green-400 animate-pulse' : 'bg-rose-400'}`}></span>
-                        {m.status}
+                        {member.status}
                       </span>
                     </td>
-                    <td className="p-5 text-right">
+                    <td className="py-4 px-5 text-right">
                       <button
-                        onClick={() => toggleUserStatus(m.id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                          m.status === 'ACTIVE' 
-                            ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white border border-rose-500/20' 
-                            : 'bg-green-500/10 text-green-400 hover:bg-green-500 hover:text-black border border-green-500/20'
+                        onClick={() => toggleUserStatus(member.id)}
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                          member.status === 'ACTIVE'
+                            ? 'text-red-400 hover:bg-red-500/10'
+                            : 'text-emerald-400 hover:bg-emerald-500/10'
                         }`}
                       >
-                        {m.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                        {member.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
                       </button>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))}
               </tbody>
             </table>
