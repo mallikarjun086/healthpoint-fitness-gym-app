@@ -21,13 +21,7 @@ public class CustomWorkoutController {
     }
 
     private Long resolveUserId(Authentication auth, Long requestedUserId) {
-        if (requestedUserId != null) {
-            return requestedUserId;
-        }
-        if (auth != null && auth.getPrincipal() instanceof Long) {
-            return (Long) auth.getPrincipal();
-        }
-        return 3L; // Default to standard authenticated member (Mallikarjun Gala)
+        return com.healthpoint.util.SecurityUtil.resolveUserId(auth, requestedUserId);
     }
 
     @GetMapping

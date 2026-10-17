@@ -4,8 +4,9 @@ import { Toaster } from 'sonner';
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/layout/PageTransition';
 import { RouteLoadingSkeleton } from './components/ui/StateSkeleton';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import VoiceAgentWidget from './components/ai/VoiceAgentWidget';
 
 // Lazy-loaded Public Pages
 const LandingPage = lazy(() => import('./pages/public/LandingPage'));
@@ -18,6 +19,7 @@ const ContactPage = lazy(() => import('./pages/public/ContactPage'));
 const HealthHub = lazy(() => import('./pages/public/HealthHub'));
 const FreeWorkouts = lazy(() => import('./pages/public/FreeWorkouts'));
 const GymLocator = lazy(() => import('./pages/public/GymLocator'));
+const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage'));
 
 // Lazy-loaded Admin Pages
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -104,11 +106,17 @@ function AnimatedRoutes() {
           <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/member/*" element={<Navigate to="/member/dashboard" replace />} />
           <Route path="/trainer/*" element={<Navigate to="/trainer/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
         </Routes>
       </AnimatePresence>
     </Suspense>
   );
+}
+
+function AuthenticatedVoiceAgent() {
+  const { user } = useAuth();
+  if (!user) return null;
+  return <VoiceAgentWidget role={user?.role || 'MEMBER'} userId={user?.id || 1} />;
 }
 
 function App() {
@@ -117,6 +125,7 @@ function App() {
       <Router>
         <Toaster position="top-right" richColors />
         <AnimatedRoutes />
+        <AuthenticatedVoiceAgent />
       </Router>
     </AuthProvider>
   );

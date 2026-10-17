@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calendar, 
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
 import { toast } from 'sonner';
+import api from '../../api';
 
 const defaultSchedule = [
   {
@@ -66,20 +67,67 @@ const SessionSchedule = () => {
     room: 'Olympic Strength Zone'
   });
 
-  const handleCreateSession = (e) => {
+  useEffect(() => {
+    api.get('/classes')
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map(c => ({
+            id: c.id,
+            clientName: c.title,
+            type: c.category || 'Group Session',
+            focus: c.description || c.title,
+            time: `${c.startTime} - ${c.endTime}`,
+            date: c.sessionDate ? String(c.sessionDate) : 'Today',
+            room: c.room || 'Studio 1',
+            status: 'CONFIRMED'
+          }));
+          setSessions([...mapped, ...defaultSchedule]);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleCreateSession = async (e) => {
     e.preventDefault();
     if (!newSession.clientName || !newSession.focus) {
       toast.error('Please enter client name and session focus');
       return;
     }
 
-    const created = {
-      id: Date.now(),
-      ...newSession,
-      status: 'CONFIRMED'
-    };
+    try {
+      const parts = newSession.time.split('-').map(s => s.trim());
+      const startTime = parts[0] || '10:00 AM';
+      const endTime = parts[1] || '11:00 AM';
 
-    setSessions([created, ...sessions]);
+      const payload = {
+        title: newSession.clientName,
+        instructorName: 'Master Trainer',
+        category: newSession.type.includes('HIIT') ? 'HIIT' : 'STRENGTH',
+        startTime,
+        endTime,
+        sessionDate: new Date().toISOString().split('T')[0],
+        capacity: 20,
+        enrolledCount: 1,
+        room: newSession.room || 'Olympic Strength Zone',
+        description: newSession.focus
+      };
+
+      const res = await api.post('/classes/create', payload);
+      const created = {
+        id: res.data?.id || Date.now(),
+        ...newSession,
+        status: 'CONFIRMED'
+      };
+      setSessions(prev => [created, ...prev]);
+    } catch (err) {
+      const created = {
+        id: Date.now(),
+        ...newSession,
+        status: 'CONFIRMED'
+      };
+      setSessions(prev => [created, ...prev]);
+    }
+
     setIsModalOpen(false);
     toast.success(`Session scheduled for ${newSession.clientName}`);
     setNewSession({ clientName: '', type: '1-on-1 Personal Training', focus: '', time: '10:00 AM - 11:00 AM', date: 'Today', room: 'Olympic Strength Zone' });

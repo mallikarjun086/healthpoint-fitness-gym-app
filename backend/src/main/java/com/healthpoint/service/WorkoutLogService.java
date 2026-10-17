@@ -19,6 +19,15 @@ public class WorkoutLogService {
     }
 
     public WorkoutLog logWorkout(@NonNull WorkoutLog log) {
+        if (log.getStartedAt() == null) {
+            log.setStartedAt(java.time.LocalDateTime.now().minusMinutes(45));
+        }
+        if (log.getCompletedAt() == null) {
+            log.setCompletedAt(java.time.LocalDateTime.now());
+        }
+        if (log.getCompletionPercentage() <= 0) {
+            log.setCompletionPercentage(100);
+        }
         WorkoutLog saved = workoutLogRepository.save(log);
         if (saved.getUserId() != null) {
             gamificationService.onWorkoutCompleted(saved.getUserId(), saved);

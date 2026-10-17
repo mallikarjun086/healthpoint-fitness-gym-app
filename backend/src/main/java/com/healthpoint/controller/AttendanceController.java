@@ -20,8 +20,16 @@ public class AttendanceController {
     }
 
     @PostMapping("/check-in")
-    public ResponseEntity<Map<String, Object>> checkInMember(@RequestBody Map<String, Object> payload) {
-        Long userId = Long.valueOf(payload.get("userId").toString());
+    public ResponseEntity<Map<String, Object>> checkInMember(
+            @RequestBody(required = false) Map<String, Object> payload,
+            org.springframework.security.core.Authentication auth) {
+        Long requestedUserId = null;
+        if (payload != null && payload.get("userId") != null) {
+            try {
+                requestedUserId = Long.valueOf(payload.get("userId").toString());
+            } catch (Exception ignored) {}
+        }
+        Long userId = com.healthpoint.util.SecurityUtil.resolveUserId(auth, requestedUserId);
         
         Attendance attendance = new Attendance();
         attendance.setUserId(userId);
@@ -59,8 +67,16 @@ public class AttendanceController {
     }
 
     @PostMapping("/check-out")
-    public ResponseEntity<Map<String, Object>> checkOutMember(@RequestBody Map<String, Object> payload) {
-        Long userId = Long.valueOf(payload.get("userId").toString());
+    public ResponseEntity<Map<String, Object>> checkOutMember(
+            @RequestBody(required = false) Map<String, Object> payload,
+            org.springframework.security.core.Authentication auth) {
+        Long requestedUserId = null;
+        if (payload != null && payload.get("userId") != null) {
+            try {
+                requestedUserId = Long.valueOf(payload.get("userId").toString());
+            } catch (Exception ignored) {}
+        }
+        Long userId = com.healthpoint.util.SecurityUtil.resolveUserId(auth, requestedUserId);
         List<Attendance> active = attendanceRepo.findByUserIdOrderByCheckInTimeDesc(userId);
         if (!active.isEmpty()) {
             Attendance latest = active.get(0);

@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function WorkoutLoggerModal({ isOpen, onClose, workoutRoutine, onLogComplete }) {
+  const { user } = useAuth();
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0);
   const [completedSets, setCompletedSets] = useState({});
   const [setInputs, setSetInputs] = useState({});
@@ -88,11 +90,11 @@ export default function WorkoutLoggerModal({ isOpen, onClose, workoutRoutine, on
       // Send log entry to backend
       const totalSetsLogged = Object.keys(completedSets).filter(k => completedSets[k]).length;
       await api.post('/workout/logs/add', {
-        userId: 1,
-        workoutTitle: workoutRoutine?.focus || 'Push Day Session',
-        durationMinutes: 45,
-        caloriesBurned: 380,
-        notes: `Completed ${totalSetsLogged} total sets cleanly.`
+        userId: user?.id || 1,
+        startedAt: new Date(Date.now() - 45 * 60000).toISOString(),
+        completedAt: new Date().toISOString(),
+        completionPercentage: 100,
+        notes: `Completed ${workoutRoutine?.focus || 'Push Day'} with ${totalSetsLogged} sets cleanly.`
       });
       toast.success("🏆 Workout session logged & saved to your profile!");
       if (onLogComplete) onLogComplete();

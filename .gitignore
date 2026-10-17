@@ -38,4 +38,5 @@ dist/
 .env
 *.log
 run_log*.txt
-
+__pycache__/
+*.pyc

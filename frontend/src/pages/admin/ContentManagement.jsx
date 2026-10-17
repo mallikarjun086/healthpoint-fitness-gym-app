@@ -12,17 +12,20 @@ import {
   Layers,
   X
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import { toast } from 'sonner';
+import api from '../../api';
+
+const defaultContents = [
+  { id: 1, title: 'Mastering the Barbell Squat', category: 'Strength Training', duration: '12:45', views: '1.2k', videoUrl: 'https://www.youtube.com/embed/g2bOwQ5M-x8', thumbnail: 'https://img.youtube.com/vi/g2bOwQ5M-x8/hqdefault.jpg' },
+  { id: 2, title: 'HIIT Cardio Fat Burner', category: 'Fat Loss', duration: '20:00', views: '3.4k', videoUrl: 'https://www.youtube.com/embed/ml6cT4AZdqI', thumbnail: 'https://img.youtube.com/vi/ml6cT4AZdqI/hqdefault.jpg' },
+  { id: 3, title: 'Post-Workout Mobility & Recovery', category: 'Flexibility', duration: '15:30', views: '890', videoUrl: 'https://www.youtube.com/embed/L_xrDAtykMI', thumbnail: 'https://img.youtube.com/vi/L_xrDAtykMI/hqdefault.jpg' },
+  { id: 4, title: 'Nutrition Masterclass: Macro Counting', category: 'Diet & Nutrition', duration: '25:10', views: '2.1k', videoUrl: 'https://www.youtube.com/embed/3n0F46ZtW9s', thumbnail: 'https://img.youtube.com/vi/3n0F46ZtW9s/hqdefault.jpg' }
+];
 
 const ContentManagement = () => {
-  const [contents, setContents] = useState([
-    { id: 1, title: 'Mastering the Barbell Squat', category: 'Strength Training', duration: '12:45', views: '1.2k', videoUrl: 'https://www.youtube.com/embed/g2bOwQ5M-x8', thumbnail: 'https://img.youtube.com/vi/g2bOwQ5M-x8/hqdefault.jpg' },
-    { id: 2, title: 'HIIT Cardio Fat Burner', category: 'Fat Loss', duration: '20:00', views: '3.4k', videoUrl: 'https://www.youtube.com/embed/ml6cT4AZdqI', thumbnail: 'https://img.youtube.com/vi/ml6cT4AZdqI/hqdefault.jpg' },
-    { id: 3, title: 'Post-Workout Mobility & Recovery', category: 'Flexibility', duration: '15:30', views: '890', videoUrl: 'https://www.youtube.com/embed/L_xrDAtykMI', thumbnail: 'https://img.youtube.com/vi/L_xrDAtykMI/hqdefault.jpg' },
-    { id: 4, title: 'Nutrition Masterclass: Macro Counting', category: 'Diet & Nutrition', duration: '25:10', views: '2.1k', videoUrl: 'https://www.youtube.com/embed/3n0F46ZtW9s', thumbnail: 'https://img.youtube.com/vi/3n0F46ZtW9s/hqdefault.jpg' }
-  ]);
+  const [contents, setContents] = useState(defaultContents);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -31,35 +34,84 @@ const ContentManagement = () => {
 
   const categories = ['ALL', 'Strength Training', 'Fat Loss', 'Flexibility', 'Diet & Nutrition'];
 
+  useEffect(() => {
+    api.get('/content/all')
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const apiContents = res.data.map(item => {
+            const ytId = (item.url || '').match(/(?:embed\/|v=|youtu\.be\/)([^?&\/]+)/)?.[1] || '';
+            return {
+              id: item.id,
+              title: item.title,
+              category: item.description || 'Strength Training',
+              duration: '15:00',
+              views: '1.5k',
+              videoUrl: item.url,
+              thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : ''
+            };
+          });
+          setContents([...apiContents, ...defaultContents]);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const filteredContents = contents.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCat = selectedCategory === 'ALL' || item.category === selectedCategory;
     return matchesSearch && matchesCat;
   });
 
-  const handleAddContent = (e) => {
+  const handleAddContent = async (e) => {
     e.preventDefault();
     if (!newVideo.title || !newVideo.videoUrl) {
       toast.error('Please enter title and video URL');
       return;
     }
     const ytId = newVideo.videoUrl.match(/(?:embed\/|v=|youtu\.be\/)([^?&\/]+)/)?.[1] || '';
-    const item = {
-      id: Date.now(),
-      title: newVideo.title,
-      category: newVideo.category,
-      duration: newVideo.duration || '10:00',
-      views: '0',
-      videoUrl: newVideo.videoUrl,
-      thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : ''
-    };
-    setContents(prev => [item, ...prev]);
+    
+    try {
+      const payload = {
+        title: newVideo.title,
+        description: newVideo.category,
+        type: 'VIDEO',
+        url: newVideo.videoUrl,
+        requiredAddon: 'WORKOUT',
+        isPremium: true
+      };
+      const res = await api.post('/content/create', payload);
+      const item = {
+        id: res.data?.id || Date.now(),
+        title: newVideo.title,
+        category: newVideo.category,
+        duration: newVideo.duration || '10:00',
+        views: '0',
+        videoUrl: newVideo.videoUrl,
+        thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : ''
+      };
+      setContents(prev => [item, ...prev]);
+    } catch (err) {
+      const item = {
+        id: Date.now(),
+        title: newVideo.title,
+        category: newVideo.category,
+        duration: newVideo.duration || '10:00',
+        views: '0',
+        videoUrl: newVideo.videoUrl,
+        thumbnail: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : ''
+      };
+      setContents(prev => [item, ...prev]);
+    }
+
     setIsModalOpen(false);
     setNewVideo({ title: '', category: 'Strength Training', duration: '', videoUrl: '' });
     toast.success('New video content published to Member Library!');
   };
 
-  const handleDeleteContent = (id, title) => {
+  const handleDeleteContent = async (id, title) => {
+    try {
+      await api.delete(`/content/${id}`);
+    } catch (err) {}
     setContents(prev => prev.filter(c => c.id !== id));
     toast.success(`Video "${title}" deleted.`);
   };

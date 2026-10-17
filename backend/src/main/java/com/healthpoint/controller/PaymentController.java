@@ -5,7 +5,7 @@ import com.healthpoint.dto.VerifyPaymentRequest;
 import com.healthpoint.entity.Payment;
 import com.healthpoint.service.PaymentService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,18 +26,18 @@ public class PaymentController {
     }
 
     @PostMapping("/create-order")
-    public ResponseEntity<?> createOrder(@RequestBody @NonNull PaymentRequest request, Authentication auth) {
+    public ResponseEntity<?> createOrder(@RequestBody PaymentRequest request, Authentication auth) {
         try {
-            Long userId = request.getUserId();
-            if (auth != null && auth.getPrincipal() instanceof Long) {
-                userId = (Long) auth.getPrincipal();
+            Long resolvedUserId = com.healthpoint.util.SecurityUtil.resolveUserId(auth, request.getUserId());
+            if (resolvedUserId == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "User ID is required to create a payment order"));
             }
-            if (userId == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "UserId is required"));
+            if (request.getAmount() == null || request.getCurrency() == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Amount and currency are required"));
             }
 
             Payment payment = paymentService.createPaymentOrder(
-                userId,
+                resolvedUserId,
                 request.getAmount(),
                 request.getCurrency(),
                 request.getPaymentFor(),
@@ -56,8 +56,12 @@ public class PaymentController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyPayment(@RequestBody @NonNull VerifyPaymentRequest request) {
+    public ResponseEntity<?> verifyPayment(@RequestBody VerifyPaymentRequest request) {
         try {
+            if (request.getRazorpayOrderId() == null || request.getRazorpayPaymentId() == null || request.getRazorpaySignature() == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Razorpay orderId, paymentId, and signature are required"));
+            }
+
             Payment payment = paymentService.verifyAndUpdatePayment(
                     request.getRazorpayOrderId(),
                     request.getRazorpayPaymentId(),
@@ -77,15 +81,16 @@ public class PaymentController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Payment>> getUserPayments(@PathVariable @NonNull Long userId, Authentication auth) {
-        Long authenticatedId = userId;
-        if (auth != null && auth.getPrincipal() instanceof Long) {
-            authenticatedId = (Long) auth.getPrincipal();
+    public ResponseEntity<List<Payment>> getUserPayments(@PathVariable Long userId, Authentication auth) {
+        Long authenticatedId = com.healthpoint.util.SecurityUtil.resolveUserId(auth, userId);
+        if (authenticatedId == null) {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(paymentService.getUserPayments(java.util.Objects.requireNonNull(authenticatedId)));
+        return ResponseEntity.ok(paymentService.getUserPayments(authenticatedId));
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Payment>> getAllPayments() {
         return ResponseEntity.ok(paymentService.getAllPayments());
     }

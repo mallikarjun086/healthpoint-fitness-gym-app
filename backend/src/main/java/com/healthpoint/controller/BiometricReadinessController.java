@@ -19,13 +19,7 @@ public class BiometricReadinessController {
     }
 
     private Long resolveUserId(Authentication auth, Long requestedUserId) {
-        if (requestedUserId != null) {
-            return requestedUserId;
-        }
-        if (auth != null && auth.getPrincipal() instanceof Long) {
-            return (Long) auth.getPrincipal();
-        }
-        return 3L; // Default member ID
+        return com.healthpoint.util.SecurityUtil.resolveUserId(auth, requestedUserId);
     }
 
     @GetMapping("/readiness/today")
@@ -37,19 +31,31 @@ public class BiometricReadinessController {
     }
 
     @PostMapping("/sync")
-    public ResponseEntity<Map<String, Object>> syncWearableData(@RequestBody Map<String, Object> payload,
+    public ResponseEntity<Map<String, Object>> syncWearableData(@RequestBody(required = false) Map<String, Object> payload,
                                                                 Authentication auth) {
-        Long userId = resolveUserId(auth, payload.containsKey("userId") ? Long.valueOf(payload.get("userId").toString()) : null);
-        String provider = (String) payload.getOrDefault("provider", "APPLE_HEALTH");
-        Map<String, Object> updatedReadiness = readinessService.syncWearableData(userId, provider, payload);
+        Long requestedUserId = null;
+        if (payload != null && payload.get("userId") != null) {
+            try {
+                requestedUserId = Long.valueOf(payload.get("userId").toString());
+            } catch (Exception ignored) {}
+        }
+        Long userId = resolveUserId(auth, requestedUserId);
+        String provider = (String) (payload != null ? payload.getOrDefault("provider", "APPLE_HEALTH") : "APPLE_HEALTH");
+        Map<String, Object> updatedReadiness = readinessService.syncWearableData(userId, provider, payload != null ? payload : Map.of());
         return ResponseEntity.ok(updatedReadiness);
     }
 
     @PostMapping("/seed-demo")
-    public ResponseEntity<Map<String, Object>> seedDemoScenario(@RequestBody Map<String, Object> payload,
+    public ResponseEntity<Map<String, Object>> seedDemoScenario(@RequestBody(required = false) Map<String, Object> payload,
                                                                 Authentication auth) {
-        Long userId = resolveUserId(auth, payload.containsKey("userId") ? Long.valueOf(payload.get("userId").toString()) : null);
-        String scenario = (String) payload.getOrDefault("scenario", "OPTIMAL");
+        Long requestedUserId = null;
+        if (payload != null && payload.get("userId") != null) {
+            try {
+                requestedUserId = Long.valueOf(payload.get("userId").toString());
+            } catch (Exception ignored) {}
+        }
+        Long userId = resolveUserId(auth, requestedUserId);
+        String scenario = (String) (payload != null ? payload.getOrDefault("scenario", "OPTIMAL") : "OPTIMAL");
         Map<String, Object> seededReadiness = readinessService.seedDemoScenario(userId, scenario);
         return ResponseEntity.ok(seededReadiness);
     }

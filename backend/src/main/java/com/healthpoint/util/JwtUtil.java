@@ -3,6 +3,7 @@ package com.healthpoint.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -11,11 +12,14 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET = "your-256-bit-secret-key-here-healthpoint-fitness-2024";
-    private static final long EXPIRATION = 86400000; // 24 hours
+    @Value("${jwt.secret:your-256-bit-secret-key-here-healthpoint-fitness-2024}")
+    private String secret;
+
+    @Value("${jwt.expiration:86400000}")
+    private long expiration;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(Long userId, String email) {
@@ -24,7 +28,7 @@ public class JwtUtil {
 
     public String generateToken(Long userId, String email, String role) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + EXPIRATION);
+        Date expiry = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))

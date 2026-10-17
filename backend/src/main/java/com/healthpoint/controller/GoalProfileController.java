@@ -3,6 +3,7 @@ package com.healthpoint.controller;
 import com.healthpoint.dto.GoalProfileRequest;
 import com.healthpoint.entity.UserProfile;
 import com.healthpoint.service.GoalPlanService;
+import com.healthpoint.util.SecurityUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +25,10 @@ public class GoalProfileController {
     public ResponseEntity<?> setupGoal(@RequestBody GoalProfileRequest request,
                                        Authentication auth) {
         try {
-            if (auth == null || !(auth.getPrincipal() instanceof Long)) {
+            Long userId = SecurityUtil.extractUserId(auth);
+            if (userId == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "Unauthorized access"));
             }
-            Long userId = (Long) auth.getPrincipal();
             Map<String, Object> plan = goalPlanService.createOrUpdateGoal(userId, request);
             return ResponseEntity.ok(plan);
         } catch (Exception e) {
@@ -39,10 +40,10 @@ public class GoalProfileController {
     @GetMapping("/my-plan")
     public ResponseEntity<?> getMyPlan(Authentication auth) {
         try {
-            if (auth == null || !(auth.getPrincipal() instanceof Long)) {
+            Long userId = SecurityUtil.extractUserId(auth);
+            if (userId == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "Unauthorized access"));
             }
-            Long userId = (Long) auth.getPrincipal();
             Optional<UserProfile> profile = goalPlanService.getProfile(userId);
             if (profile.isPresent()) {
                 return ResponseEntity.ok(profile.get());

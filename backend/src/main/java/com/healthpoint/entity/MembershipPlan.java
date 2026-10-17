@@ -1,7 +1,6 @@
 package com.healthpoint.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +10,6 @@ import java.math.BigDecimal;
 @Table(name = "membership_plans")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class MembershipPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

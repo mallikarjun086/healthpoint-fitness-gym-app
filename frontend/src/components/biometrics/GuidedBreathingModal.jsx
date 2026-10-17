@@ -13,6 +13,9 @@ import {
   CheckCircle2,
   Activity
 } from 'lucide-react';
+import { toast } from 'sonner';
+import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 const PHASE_CONFIG = {
   INHALE: { name: 'Inhale', duration: 4.0, instruction: 'Inhale deeply through your nose, expanding your diaphragm', scale: 1.5, color: '#6366F1' },
@@ -21,6 +24,7 @@ const PHASE_CONFIG = {
 };
 
 const GuidedBreathingModal = ({ isOpen, onClose }) => {
+  const { user } = useAuth();
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState('INHALE'); // INHALE, HOLD, EXHALE
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(4.0);
@@ -258,7 +262,22 @@ const GuidedBreathingModal = ({ isOpen, onClose }) => {
               <Heart className="w-3.5 h-3.5 text-rose-400" />
               <span>Stimulates vagus nerve & balances sympathetic tone</span>
             </span>
-            <button onClick={onClose} className="btn-secondary text-xs py-1.5 px-3">
+            <button 
+              onClick={() => {
+                if (completedCycles >= 1) {
+                  const uid = user?.id || 3;
+                  api.post(`/gamification/badges/claim-recovery-mastery?userId=${uid}`)
+                    .then(res => {
+                      if (res.data?.badge && res.data.badge !== 'ALREADY_OWNED') {
+                        toast.success('🏆 Achievement Unlocked: Recovery Scholar (+350 XP)!');
+                      }
+                    })
+                    .catch(() => {});
+                }
+                onClose();
+              }} 
+              className="btn-secondary text-xs py-1.5 px-3"
+            >
               Done
             </button>
           </div>

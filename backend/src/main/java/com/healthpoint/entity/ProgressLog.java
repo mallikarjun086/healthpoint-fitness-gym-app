@@ -1,7 +1,6 @@
 package com.healthpoint.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "progress_logs")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ProgressLog {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)

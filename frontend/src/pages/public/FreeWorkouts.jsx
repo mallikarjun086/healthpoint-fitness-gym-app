@@ -25,10 +25,18 @@ const FreeWorkouts = () => {
   const locations = ['ALL', 'Gym', 'Home', 'Outdoor'];
   const equipments = ['ALL', 'Bodyweight', 'Dumbbells', 'Barbell', 'Cables', 'Machine'];
 
+  const getExerciseLocation = (equipment) => {
+    if (equipment === 'Bodyweight') return ['Home', 'Outdoor', 'Gym'];
+    if (equipment === 'Dumbbells') return ['Home', 'Gym'];
+    return ['Gym'];
+  };
+
   const filteredWorkouts = exercises.filter(w => {
-    const matchLoc = selectedLocation === 'ALL' || w.location === selectedLocation;
+    const locs = getExerciseLocation(w.equipment);
+    const matchLoc = selectedLocation === 'ALL' || locs.includes(selectedLocation);
     const matchEq = selectedEquipment === 'ALL' || w.equipment === selectedEquipment;
-    const matchSearch = w.title.toLowerCase().includes(searchQuery.toLowerCase()) || w.targetMuscles.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch = (w.title || w.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        (w.targetMuscles || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchLoc && matchEq && matchSearch;
   });
 

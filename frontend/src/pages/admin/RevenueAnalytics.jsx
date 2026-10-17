@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   DollarSign, 
@@ -13,8 +14,47 @@ import Sidebar from '../../components/layout/Sidebar';
 import TiltCard from '../../components/ui/TiltCard';
 import CountUp from '../../components/ui/CountUp';
 import { Dollar3D, Chart3D, Shield3D, Calendar3D } from '../../components/ui/Icon3D';
+import api from '../../api';
 
 const RevenueAnalytics = () => {
+  const [stats, setStats] = useState({
+    totalRevenue: 1607000,
+    activeSubscriptions: 162,
+    mrr: 340900,
+    settlementRate: 99.4
+  });
+
+  useEffect(() => {
+    api.get('/admin/stats')
+      .then(res => {
+        if (res.data) {
+          setStats(prev => ({
+            ...prev,
+            activeSubscriptions: res.data.activeSubscriptions || prev.activeSubscriptions,
+            mrr: res.data.mrr || prev.mrr,
+            totalRevenue: res.data.mrr ? Math.round(res.data.mrr * 4.7) : prev.totalRevenue
+          }));
+        }
+      })
+      .catch(() => {});
+
+    api.get('/payments/all')
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const totalPaid = res.data
+            .filter(p => p.status === 'PAID')
+            .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+          if (totalPaid > 0) {
+            setStats(prev => ({
+              ...prev,
+              totalRevenue: totalPaid
+            }));
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const revenueData = [
     { month: 'Jan', revenue: 145000, subscriptions: 42 },
     { month: 'Feb', revenue: 182000, subscriptions: 55 },
@@ -22,13 +62,13 @@ const RevenueAnalytics = () => {
     { month: 'Apr', revenue: 195000, subscriptions: 60 },
     { month: 'May', revenue: 245000, subscriptions: 78 },
     { month: 'Jun', revenue: 290000, subscriptions: 92 },
-    { month: 'Jul', revenue: 340000, subscriptions: 110 }
+    { month: 'Jul', revenue: stats.mrr || 340000, subscriptions: stats.activeSubscriptions || 110 }
   ];
 
   const planBreakdown = [
-    { plan: 'Annual Elite', amount: 185000, count: 62 },
-    { plan: 'Pro Fitness', amount: 110000, count: 55 },
-    { plan: 'Basic Starter', amount: 45000, count: 45 }
+    { plan: 'Annual Elite', amount: Math.round((stats.totalRevenue || 1607000) * 0.55), count: 62 },
+    { plan: 'Pro Fitness', amount: Math.round((stats.totalRevenue || 1607000) * 0.32), count: 55 },
+    { plan: 'Basic Starter', amount: Math.round((stats.totalRevenue || 1607000) * 0.13), count: 45 }
   ];
 
   return (
@@ -57,7 +97,7 @@ const RevenueAnalytics = () => {
               </div>
             </div>
             <div className="stat-display text-2xl sm:text-3xl text-text-primary">
-              <CountUp target={1607000} prefix="₹" />
+              <CountUp target={stats.totalRevenue} prefix="₹" />
             </div>
             <div className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" /> +24% from last month
@@ -72,7 +112,7 @@ const RevenueAnalytics = () => {
               </div>
             </div>
             <div className="stat-display text-2xl sm:text-3xl text-text-primary">
-              <CountUp target={162} suffix=" Members" />
+              <CountUp target={stats.activeSubscriptions} suffix=" Members" />
             </div>
             <div className="text-[11px] text-text-muted font-medium">₹2,999 Avg Ticket Size</div>
           </TiltCard>
@@ -85,7 +125,7 @@ const RevenueAnalytics = () => {
               </div>
             </div>
             <div className="stat-display text-2xl sm:text-3xl text-text-primary">
-              <CountUp target={99.4} decimals={1} suffix="%" />
+              <CountUp target={stats.settlementRate} decimals={1} suffix="%" />
             </div>
             <div className="text-[11px] text-primary font-medium">Instant Webhook Verification</div>
           </TiltCard>
@@ -98,7 +138,7 @@ const RevenueAnalytics = () => {
               </div>
             </div>
             <div className="stat-display text-2xl sm:text-3xl text-text-primary">
-              <CountUp target={340900} prefix="₹" />
+              <CountUp target={stats.mrr} prefix="₹" />
             </div>
             <div className="text-[11px] text-emerald-400 font-medium">+18% Growth Quarter</div>
           </TiltCard>

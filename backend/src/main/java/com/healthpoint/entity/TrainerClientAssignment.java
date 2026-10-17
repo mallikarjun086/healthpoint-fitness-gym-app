@@ -1,7 +1,6 @@
 package com.healthpoint.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 })
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class TrainerClientAssignment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

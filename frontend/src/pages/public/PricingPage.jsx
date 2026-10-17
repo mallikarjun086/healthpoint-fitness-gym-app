@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/layout/Navbar';
+import { useAuth } from '../../context/AuthContext';
 import TiltCard from '../../components/ui/TiltCard';
 import CountUp from '../../components/ui/CountUp';
 import { Sparkles3D, Shield3D, Dumbbell3D, Zap3D } from '../../components/ui/Icon3D';
@@ -128,14 +129,14 @@ const PricingPage = () => {
             </div>
 
             <Link 
-              to="/register" 
+              to={isAuthenticated ? "/member/payments" : "/register"} 
               className={`w-full py-3 rounded-xl text-center text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
                 plan.popular 
                   ? 'btn-hero shadow-accent' 
                   : 'btn-secondary'
               }`}
             >
-              <span>{plan.cta}</span>
+              <span>{isAuthenticated ? 'Select Tier' : plan.cta}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </TiltCard>

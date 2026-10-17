@@ -86,13 +86,17 @@ def analyze_landmarks(payload: LandmarkAnalysisRequest):
         return engine.analyze_deadlift(landmarks)
     elif "ROW" in exercise:
         return engine.analyze_row(landmarks)
+    elif "PRESS" in exercise or "OVERHEAD" in exercise:
+        return engine.analyze_overhead_press(landmarks)
+    elif "CURL" in exercise or "BICEP" in exercise:
+        return engine.analyze_bicep_curl(landmarks)
     else:
         # Generic squat/hinge analysis fallback
         return engine.analyze_squat(landmarks)
 
 @app.get("/api/pose/rules/{exercise}")
 def get_exercise_rules(exercise: str):
-    ex = exercise.upper()
+    ex = exercise.upper().replace("-", "_").replace(" ", "_")
     rules = {
         "SQUAT": {
             "primaryJoint": "Knee & Hip",
@@ -115,9 +119,33 @@ def get_exercise_rules(exercise: str):
             "primaryJoint": "Elbow & Torso",
             "safeTorsoAngle": [35, 60],
             "cues": ["Hinge to 45°", "Pinch shoulder blades", "Quiet lower back"]
+        },
+        "OVERHEAD_PRESS": {
+            "primaryJoint": "Elbow & Shoulder",
+            "safeElbowRange": [60, 175],
+            "cues": ["Press overhead over midfoot", "Tuck chin on ascent", "Squeeze glutes"]
+        },
+        "BICEP_CURL": {
+            "primaryJoint": "Elbow Flexion",
+            "safeElbowRange": [45, 170],
+            "cues": ["Keep upper arms pinned to sides", "Full range of motion", "Controlled 3s eccentric"]
         }
     }
-    return rules.get(ex, rules["SQUAT"])
+    if ex in rules:
+        return rules[ex]
+    if "SQUAT" in ex:
+        return rules["SQUAT"]
+    elif "PUSH" in ex and "UP" in ex:
+        return rules["PUSHUP"]
+    elif "DEADLIFT" in ex or "HINGE" in ex or "RDL" in ex:
+        return rules["DEADLIFT"]
+    elif "ROW" in ex:
+        return rules["ROW"]
+    elif "PRESS" in ex or "OVERHEAD" in ex:
+        return rules["OVERHEAD_PRESS"]
+    elif "CURL" in ex or "BICEP" in ex:
+        return rules["BICEP_CURL"]
+    return rules["SQUAT"]
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8086)

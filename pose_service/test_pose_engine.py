@@ -45,7 +45,40 @@ def test_squat_analysis():
     assert "KNEE_VALGUS" in valgus_res["faults"]
     assert "knees" in valgus_res["coachingCue"].lower()
 
+def test_null_safety():
+    engine = PoseEngine()
+    # Test with None values inside landmark dicts
+    a = {"x": None, "y": 1.0, "z": 0.0}
+    b = {"x": 0.0, "y": 0.0, "z": 0.0}
+    c = {"x": 1.0, "y": 0.0, "z": 0.0}
+    angle = engine.calculate_3d_angle(a, b, c)
+    assert isinstance(angle, float)
+
+    # Test with missing landmark array
+    res = engine.analyze_squat([])
+    assert res["valid"] is False
+
+def test_bicep_curl_analysis():
+    engine = PoseEngine()
+    landmarks = [{"x": 0.0, "y": 0.0, "z": 0.0} for _ in range(33)]
+    landmarks[11] = {"x": 0.4, "y": 0.2, "z": 0.0}
+    landmarks[12] = {"x": 0.6, "y": 0.2, "z": 0.0}
+    landmarks[13] = {"x": 0.4, "y": 0.5, "z": 0.0}
+    landmarks[14] = {"x": 0.6, "y": 0.5, "z": 0.0}
+    landmarks[15] = {"x": 0.4, "y": 0.8, "z": 0.0}
+    landmarks[16] = {"x": 0.6, "y": 0.8, "z": 0.0}
+    landmarks[23] = {"x": 0.4, "y": 0.6, "z": 0.0}
+    landmarks[24] = {"x": 0.6, "y": 0.6, "z": 0.0}
+    landmarks[25] = {"x": 0.4, "y": 1.0, "z": 0.0}
+    landmarks[26] = {"x": 0.6, "y": 1.0, "z": 0.0}
+
+    res = engine.analyze_bicep_curl(landmarks)
+    assert res["valid"] is True
+    assert "elbowAngle" in res
+
 if __name__ == "__main__":
     test_3d_angle_calculation()
     test_squat_analysis()
+    test_null_safety()
+    test_bicep_curl_analysis()
     print("ALL POSE ENGINE TESTS PASSED SUCCESSFULLY!")

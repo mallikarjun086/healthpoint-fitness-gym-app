@@ -89,6 +89,16 @@ const NotificationPanel = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleNotificationClick = async (n) => {
+    if (!n.isRead && n.id) {
+      try {
+        await api.post(`/notifications/mark-read/${n.id}`);
+      } catch (e) {}
+      setNotifications(prev => prev.map(item => item.id === n.id ? { ...item, isRead: true } : item));
+    }
+    onClose();
+  };
+
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
@@ -136,7 +146,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                   <Link
                     key={n.id}
                     to={n.linkUrl || '#'}
-                    onClick={onClose}
+                    onClick={() => handleNotificationClick(n)}
                     className={`block p-3.5 rounded-xl border transition-all ${
                       !n.isRead
                         ? 'bg-surface-elevated border-primary/30 hover:border-primary'

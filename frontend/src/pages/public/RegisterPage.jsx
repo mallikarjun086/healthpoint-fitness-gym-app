@@ -7,6 +7,8 @@ import api from '../../api';
 import { Dumbbell3D } from '../../components/ui/Icon3D';
 import { motionTokens } from '../../tokens/designTokens';
 
+import { useAuth } from '../../context/AuthContext';
+
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -16,14 +18,22 @@ const RegisterPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       await api.post('/auth/register', formData);
-      toast.success('Account created successfully! Redirecting to login...');
-      setTimeout(() => navigate('/login'), 1500);
+      // Auto-login registered athlete
+      const loginRes = await api.post('/auth/login', {
+        email: formData.email,
+        password: formData.password
+      });
+      const { token, user } = loginRes.data;
+      login(token, user);
+      toast.success(`Welcome to HealthPoint, ${user.name}!`);
+      navigate('/member/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Registration failed. Please verify your details.');
     } finally {

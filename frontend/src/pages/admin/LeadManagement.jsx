@@ -99,20 +99,21 @@ const LeadManagement = () => {
       return;
     }
 
-    const payload = {
-      id: Date.now(),
+    const leadData = {
       ...newLead,
       trialDate: newLead.trialDate || new Date().toISOString().split('T')[0]
     };
 
     try {
-      await api.post('/leads/create', payload);
+      const res = await api.post('/leads/create', leadData);
+      const savedLead = res.data || { id: Date.now(), ...leadData };
       toast.success(`Lead "${newLead.name}" recorded`);
-      setLeads([payload, ...leads]);
+      setLeads([savedLead, ...leads]);
       setIsModalOpen(false);
       setNewLead({ name: '', email: '', phone: '', status: 'NEW', source: 'WALK_IN', notes: '', assignedTo: 'Alex Mercer', trialDate: '' });
     } catch (err) {
-      setLeads([payload, ...leads]);
+      const fallback = { id: Date.now(), ...leadData };
+      setLeads([fallback, ...leads]);
       toast.success(`Lead recorded`);
       setIsModalOpen(false);
     }

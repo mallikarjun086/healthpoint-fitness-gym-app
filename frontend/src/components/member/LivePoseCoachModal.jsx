@@ -28,6 +28,8 @@ import {
 } from '../../utils/poseKinematics';
 import voiceCoach from '../../utils/voiceCoach';
 import api from '../../api';
+import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 
 const SUPPORTED_EXERCISES = [
   { id: 'SQUAT', name: 'Barbell / Bodyweight Squat', targetMuscle: 'Quads & Glutes', defaultAngle: 'Knee Flexion (70°-130°)' },
@@ -38,6 +40,8 @@ const SUPPORTED_EXERCISES = [
 ];
 
 const LivePoseCoachModal = ({ isOpen, onClose, initialExercise = 'SQUAT' }) => {
+  const { user } = useAuth();
+  const currentUserId = user?.id || 3;
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const repMachineRef = useRef(new RepCounterStateMachine(initialExercise));
@@ -48,6 +52,7 @@ const LivePoseCoachModal = ({ isOpen, onClose, initialExercise = 'SQUAT' }) => {
   const [selectedExercise, setSelectedExercise] = useState(initialExercise);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
+  const [isSimulating, setIsSimulating] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [repData, setRepData] = useState({ reps: 0, stage: 'EXTENDED', averageScore: 100, faultSummary: {} });
   const [liveTelemetry, setLiveTelemetry] = useState({
@@ -73,7 +78,7 @@ const LivePoseCoachModal = ({ isOpen, onClose, initialExercise = 'SQUAT' }) => {
     try {
       setIsEscalating(true);
       await api.post('/safety/form-fault', {
-        userId: 3,
+        userId: currentUserId,
         exerciseName: selectedExercise,
         faultDescription: severeFaultName || 'Biomechanical deviation threshold exceeded',
         faultCount: repData.faultSummary[severeFaultName] || 3,
@@ -300,9 +305,64 @@ const LivePoseCoachModal = ({ isOpen, onClose, initialExercise = 'SQUAT' }) => {
     };
   }, [cameraActive, isFinished, processFrame]);
 
+  const startSimulation = () => {
+    setCameraError(null);
+    setIsSimulating(true);
+    setCameraActive(true);
+    toast.info("Started biomechanical telemetry simulator!");
+    voiceCoach.speak(`Simulating live ${selectedExercise.toLowerCase()} repetitions.`);
+  };
+
+  useEffect(() => {
+    if (!isSimulating || isFinished) return;
+
+    let currentAngle = 175;
+    let descending = true;
+    let localReps = 0;
+
+    const interval = setInterval(() => {
+      if (descending) {
+        currentAngle -= 25;
+        if (currentAngle <= 80) {
+          descending = false;
+          setLiveTelemetry(prev => ({
+            ...prev,
+            isValid: true,
+            primaryAngle: 80,
+            cue: 'Optimal depth reached! Explode upward.',
+            formScore: 96
+          }));
+        }
+      } else {
+        currentAngle += 25;
+        if (currentAngle >= 170) {
+          descending = true;
+          localReps += 1;
+          setRepData(prev => ({
+            ...prev,
+            reps: localReps,
+            stage: 'EXTENDED',
+            averageScore: 94
+          }));
+          voiceCoach.speakRepCount(localReps);
+        }
+      }
+
+      setLiveTelemetry(prev => ({
+        ...prev,
+        isValid: true,
+        primaryAngle: currentAngle,
+        angles: { primaryJointAngle: currentAngle, valgusRatio: 0.88 }
+      }));
+    }, 350);
+
+    return () => clearInterval(interval);
+  }, [isSimulating, isFinished, selectedExercise]);
+
   // Finish Set & Save to Spring Boot
   const handleFinishSet = async () => {
     setIsFinished(true);
+    setIsSimulating(false);
     if (requestAnimationRef.current) cancelAnimationFrame(requestAnimationRef.current);
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach(track => track.stop());
@@ -327,7 +387,7 @@ const LivePoseCoachModal = ({ isOpen, onClose, initialExercise = 'SQUAT' }) => {
 
       // Check for Form Mastery Achievement (>= 90%)
       if (repData.averageScore >= 90 && repData.reps >= 5) {
-        api.post(`/gamification/badges/claim-form-mastery?userId=3&score=${repData.averageScore / 100}`)
+        api.post(`/gamification/badges/claim-form-mastery?userId=${currentUserId}&score=${repData.averageScore / 100}`)
           .then(res => {
             if (res.data?.badge && res.data.badge !== 'ALREADY_OWNED') {
               toast.success('🏆 Achievement Unlocked: Precision Biomechanics 95% (+400 XP)!', { duration: 5000 });
@@ -445,12 +505,20 @@ const LivePoseCoachModal = ({ isOpen, onClose, initialExercise = 'SQUAT' }) => {
                   <h3 className="text-base font-bold text-white">Camera Access Required</h3>
                   <p className="text-xs text-slate-400 leading-relaxed">{cameraError}</p>
                 </div>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="btn-primary text-xs py-2 px-5 flex items-center gap-2"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" /> Retry Camera Access
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="btn-secondary text-xs py-2 px-4 flex items-center gap-2"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Retry Camera Access
+                  </button>
+                  <button
+                    onClick={startSimulation}
+                    className="btn-primary text-xs py-2 px-4 flex items-center gap-2 shadow-accent"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Test Simulated Kinematics
+                  </button>
+                </div>
               </div>
             )}
 

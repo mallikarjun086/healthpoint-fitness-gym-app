@@ -36,9 +36,24 @@ const LoginPage = () => {
     }
   };
 
-  const handleQuickFill = (fillEmail, fillPass = 'password') => {
+  const handleQuickFill = async (fillEmail, fillPass = 'password123') => {
     setEmail(fillEmail);
     setPassword(fillPass);
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/login', { email: fillEmail, password: fillPass });
+      const { token, user } = res.data;
+      login(token, user);
+      toast.success(`Signed in as ${user.role}: ${user.name}!`);
+      const role = user.role?.toUpperCase();
+      if (role === 'ADMIN') navigate('/admin/dashboard');
+      else if (role === 'TRAINER') navigate('/trainer/dashboard');
+      else navigate('/member/dashboard');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Authentication failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -124,21 +139,21 @@ const LoginPage = () => {
             <div className="grid grid-cols-3 gap-1.5 pt-1">
               <button
                 type="button"
-                onClick={() => handleQuickFill('user@hp.com', 'password')}
+                onClick={() => handleQuickFill('user@hp.com', 'password123')}
                 className="px-2 py-1.5 rounded-lg bg-surface border border-border hover:border-primary/40 hover:text-text-primary text-text-secondary text-[11px] font-medium transition-all text-center"
               >
                 Member
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('trainer@hp.com', 'password')}
+                onClick={() => handleQuickFill('trainer@hp.com', 'password123')}
                 className="px-2 py-1.5 rounded-lg bg-surface border border-border hover:border-primary/40 hover:text-text-primary text-text-secondary text-[11px] font-medium transition-all text-center"
               >
                 Trainer
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickFill('admin@hp.com', 'password')}
+                onClick={() => handleQuickFill('admin@hp.com', 'password123')}
                 className="px-2 py-1.5 rounded-lg bg-surface border border-border hover:border-primary/40 hover:text-text-primary text-text-secondary text-[11px] font-medium transition-all text-center"
               >
                 Admin

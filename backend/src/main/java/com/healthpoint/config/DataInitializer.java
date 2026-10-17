@@ -51,7 +51,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Seed default users if empty or missing
+        // Sync sequences first to avoid duplicate key conflicts with existing rows
+        syncPostgresSequences();
+
+        // Seed default users (updates passwords to password123 and ensures role alignment)
         seedUser("Member User", "user@hp.com", "password123", "9876543210", "MEMBER");
         seedUser("Trainer Alex", "trainer@hp.com", "password123", "9876543211", "TRAINER");
         seedUser("Admin System", "admin@hp.com", "password123", "9876543212", "ADMIN");
@@ -94,8 +97,8 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // Seed Class Sessions
-        if (classSessionRepository.count() == 0) {
+        // Ensure upcoming Class Sessions exist for today and upcoming dates
+        if (classSessionRepository.findBySessionDateGreaterThanEqualOrderBySessionDateAscStartTimeAsc(java.time.LocalDate.now()).isEmpty()) {
             com.healthpoint.entity.ClassSession s1 = new com.healthpoint.entity.ClassSession();
             s1.setTitle("Sunrise Power Yoga & Flexibility");
             s1.setInstructorName("Elena Rostova");
@@ -104,7 +107,7 @@ public class DataInitializer implements CommandLineRunner {
             s1.setEndTime("07:30 AM");
             s1.setSessionDate(java.time.LocalDate.now());
             s1.setCapacity(20);
-            s1.setEnrolledCount(14);
+            s1.setEnrolledCount(5);
             s1.setRoom("Studio A (Zen Hall)");
             s1.setStatus("SCHEDULED");
             s1.setDescription("Dynamic vinyasa flow with deep hip opening and breathwork.");
@@ -118,7 +121,7 @@ public class DataInitializer implements CommandLineRunner {
             s2.setEndTime("08:45 AM");
             s2.setSessionDate(java.time.LocalDate.now());
             s2.setCapacity(25);
-            s2.setEnrolledCount(22);
+            s2.setEnrolledCount(10);
             s2.setRoom("Functional Zone");
             s2.setStatus("SCHEDULED");
             s2.setDescription("High-octane interval circuits targeting maximum caloric expenditure.");
@@ -130,9 +133,9 @@ public class DataInitializer implements CommandLineRunner {
             s3.setCategory("STRENGTH");
             s3.setStartTime("05:30 PM");
             s3.setEndTime("06:30 PM");
-            s3.setSessionDate(java.time.LocalDate.now());
+            s3.setSessionDate(java.time.LocalDate.now().plusDays(1));
             s3.setCapacity(15);
-            s3.setEnrolledCount(12);
+            s3.setEnrolledCount(4);
             s3.setRoom("Olympic Platform");
             s3.setStatus("SCHEDULED");
             s3.setDescription("Biomechanics breakdown of the clean, deadlift, and squat.");
@@ -229,6 +232,7 @@ public class DataInitializer implements CommandLineRunner {
             challengeRepository.save(c2);
         }
 
+        // Final sequence sync after seeding
         syncPostgresSequences();
     }
 
@@ -236,15 +240,24 @@ public class DataInitializer implements CommandLineRunner {
         try {
             String[] tables = {
                 "users", "user_profiles", "user_achievements", "user_streaks",
-                "workout_plans", "custom_workouts", "workout_logs", "wearable_connections",
-                "safety_escalations", "pain_reports", "challenges", "challenge_enrollments",
-                "payments", "membership_plans", "exercises", "diet_plans", "food_items", "leads"
+                "workout_plans", "custom_workouts", "workout_log", "exercise_log",
+                "wearable_connections", "safety_escalations", "pain_reports",
+                "challenges", "challenge_enrollments", "payments", "membership_plans",
+                "exercises", "diet_plans", "food_items", "food_logs", "leads",
+                "subscriptions", "class_sessions", "class_bookings", "chat_messages",
+                "attendance", "addon_plans", "addon_subscriptions", "achievements",
+                "friendships", "content", "biometric_data", "readiness_logs",
+                "progress_logs", "notifications", "trainer_client_assignments"
             };
 
             for (String table : tables) {
                 try {
-                    String sql = "SELECT setval(pg_get_serial_sequence('" + table + "', 'id'), COALESCE(MAX(id), 1)) FROM " + table;
-                    jdbcTemplate.execute(sql);
+                    Long maxId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(id), 0) FROM " + table, Long.class);
+                    if (maxId != null && maxId > 0) {
+                        jdbcTemplate.execute("SELECT setval(pg_get_serial_sequence('" + table + "', 'id'), " + maxId + ", true)");
+                    } else {
+                        jdbcTemplate.execute("SELECT setval(pg_get_serial_sequence('" + table + "', 'id'), 1, false)");
+                    }
                 } catch (Exception ignored) {
                     // Ignore if sequence doesn't exist for a particular table
                 }
@@ -255,15 +268,18 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUser(String name, String email, String password, String phone, String role) {
-        if (!userRepository.existsByEmail(email)) {
-            User user = new User();
-            user.setName(name);
-            user.setEmail(email);
-            user.setPassword(passwordEncoder.encode(password));
+        User user = userRepository.findByEmail(email).orElse(new User());
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        if (phone != null && !phone.isEmpty()) {
             user.setPhoneNumber(phone);
-            user.setRole(role);
-            userRepository.save(user);
         }
+        user.setRole(role);
+        if (user.getIsActive() == null) {
+            user.setIsActive(true);
+        }
+        userRepository.save(user);
     }
 }
 

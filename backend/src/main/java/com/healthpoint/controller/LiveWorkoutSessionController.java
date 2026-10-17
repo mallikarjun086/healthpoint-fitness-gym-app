@@ -30,20 +30,19 @@ public class LiveWorkoutSessionController {
     }
 
     private Long resolveUserId(Authentication auth, Long requestedUserId) {
-        if (requestedUserId != null) {
-            return requestedUserId;
-        }
-        if (auth != null && auth.getPrincipal() instanceof Long) {
-            return (Long) auth.getPrincipal();
-        }
-        return 3L; // Default authenticated member
+        return com.healthpoint.util.SecurityUtil.resolveUserId(auth, requestedUserId);
     }
 
-    // Simulates an active live workout session state
     @PostMapping("/start")
-    public ResponseEntity<Map<String, Object>> startSession(@RequestBody Map<String, Object> payload, Authentication auth) {
-        String workoutName = (String) payload.getOrDefault("workoutName", "Biomechanical Computer Vision Session");
-        Long userId = resolveUserId(auth, payload.containsKey("userId") ? Long.valueOf(payload.get("userId").toString()) : null);
+    public ResponseEntity<Map<String, Object>> startSession(@RequestBody(required = false) Map<String, Object> payload, Authentication auth) {
+        String workoutName = (String) (payload != null ? payload.getOrDefault("workoutName", "Biomechanical Computer Vision Session") : "Biomechanical Computer Vision Session");
+        Long requestedUserId = null;
+        if (payload != null && payload.get("userId") != null) {
+            try {
+                requestedUserId = Long.valueOf(payload.get("userId").toString());
+            } catch (Exception ignored) {}
+        }
+        Long userId = resolveUserId(auth, requestedUserId);
 
         Map<String, Object> res = new LinkedHashMap<>();
         res.put("sessionId", "SESS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
@@ -52,6 +51,23 @@ public class LiveWorkoutSessionController {
         res.put("startTime", LocalDateTime.now());
         res.put("status", "ACTIVE");
         res.put("aiRecommendation", "MediaPipe 33-landmark pose tracking calibrated. Joint kinematics active.");
+
+        List<Map<String, Object>> exercises = new ArrayList<>();
+        String nameUpper = workoutName != null ? workoutName.toUpperCase() : "";
+        if (nameUpper.contains("PULL") || nameUpper.contains("BACK")) {
+            exercises.add(Map.of("id", 201, "name", "Barbell Bent-Over Row", "targetMuscle", "Lats & Upper Back", "suggestedSets", 4, "suggestedReps", "8-10", "suggestedWeightKg", 70.0, "restSeconds", 90));
+            exercises.add(Map.of("id", 202, "name", "Lat Pulldown (Neutral Grip)", "targetMuscle", "Latissimus Dorsi", "suggestedSets", 3, "suggestedReps", "10-12", "suggestedWeightKg", 60.0, "restSeconds", 75));
+            exercises.add(Map.of("id", 203, "name", "Incline Dumbbell Bicep Curl", "targetMuscle", "Biceps Brachii", "suggestedSets", 3, "suggestedReps", "12-15", "suggestedWeightKg", 14.0, "restSeconds", 60));
+        } else if (nameUpper.contains("LEG") || nameUpper.contains("SQUAT") || nameUpper.contains("LOWER")) {
+            exercises.add(Map.of("id", 301, "name", "Barbell Back Squat", "targetMuscle", "Quadriceps & Glutes", "suggestedSets", 4, "suggestedReps", "6-8", "suggestedWeightKg", 100.0, "restSeconds", 120));
+            exercises.add(Map.of("id", 302, "name", "Romanian Deadlift (RDL)", "targetMuscle", "Hamstrings & Glutes", "suggestedSets", 4, "suggestedReps", "8-10", "suggestedWeightKg", 90.0, "restSeconds", 90));
+            exercises.add(Map.of("id", 303, "name", "Bulgarian Split Squats", "targetMuscle", "Unilateral Quads", "suggestedSets", 3, "suggestedReps", "10-12 each", "suggestedWeightKg", 18.0, "restSeconds", 75));
+        } else {
+            exercises.add(Map.of("id", 101, "name", "Barbell Incline Bench Press", "targetMuscle", "Upper Chest", "suggestedSets", 4, "suggestedReps", "8-10", "suggestedWeightKg", 75.0, "restSeconds", 90));
+            exercises.add(Map.of("id", 102, "name", "Cable Flyes (Low-to-High)", "targetMuscle", "Chest Squeeze", "suggestedSets", 3, "suggestedReps", "12-15", "suggestedWeightKg", 22.5, "restSeconds", 60));
+            exercises.add(Map.of("id", 103, "name", "Overhead Triceps Extension", "targetMuscle", "Triceps Long Head", "suggestedSets", 4, "suggestedReps", "10-12", "suggestedWeightKg", 32.0, "restSeconds", 60));
+        }
+        res.put("exercises", exercises);
 
         return ResponseEntity.ok(res);
     }
@@ -77,13 +93,20 @@ public class LiveWorkoutSessionController {
     }
 
     @PostMapping("/summary")
-    public ResponseEntity<Map<String, Object>> saveLiveSessionSummary(@RequestBody Map<String, Object> payload, Authentication auth) {
-        Long userId = resolveUserId(auth, payload.containsKey("userId") ? Long.valueOf(payload.get("userId").toString()) : null);
-        String exerciseName = (String) payload.getOrDefault("exerciseName", "Squat");
-        int repsCompleted = Integer.parseInt(payload.getOrDefault("repsCompleted", 0).toString());
-        int formScore = Integer.parseInt(payload.getOrDefault("formScore", 90).toString());
-        int durationSeconds = Integer.parseInt(payload.getOrDefault("durationSeconds", 60).toString());
-        Object faultsObj = payload.get("faultCounts");
+    public ResponseEntity<Map<String, Object>> saveLiveSessionSummary(@RequestBody(required = false) Map<String, Object> payload, Authentication auth) {
+        Map<String, Object> safePayload = payload != null ? payload : Collections.emptyMap();
+        Long requestedUserId = null;
+        if (safePayload.get("userId") != null) {
+            try {
+                requestedUserId = Long.valueOf(safePayload.get("userId").toString());
+            } catch (Exception ignored) {}
+        }
+        Long userId = resolveUserId(auth, requestedUserId);
+        String exerciseName = (String) safePayload.getOrDefault("exerciseName", "Squat");
+        int repsCompleted = Integer.parseInt(safePayload.getOrDefault("repsCompleted", 0).toString());
+        int formScore = Integer.parseInt(safePayload.getOrDefault("formScore", 90).toString());
+        int durationSeconds = Integer.parseInt(safePayload.getOrDefault("durationSeconds", 60).toString());
+        Object faultsObj = safePayload.get("faultCounts");
 
         // Create persistent WorkoutLog
         WorkoutLog workoutLog = new WorkoutLog();

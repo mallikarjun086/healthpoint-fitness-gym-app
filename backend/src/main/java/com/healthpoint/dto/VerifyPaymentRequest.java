@@ -1,13 +1,14 @@
 package com.healthpoint.dto;
 
 import lombok.Data;
-import org.springframework.lang.NonNull;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class VerifyPaymentRequest {
-    @NonNull private String razorpayOrderId;
-    @NonNull private String razorpayPaymentId;
-    @NonNull private String razorpaySignature;
+    private String razorpayOrderId;
+    private String razorpayPaymentId;
+    private String razorpaySignature;
     private Long userId;
     private String paymentFor;
     private Long referenceId;

@@ -36,8 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtUtil.validateToken(token)) {
                 Long userId = jwtUtil.extractUserId(token);
                 String role = jwtUtil.extractRole(token);
+                String normalizedRole = "MEMBER";
+                if (role != null && !role.isBlank()) {
+                    String clean = role.trim().toUpperCase();
+                    normalizedRole = clean.startsWith("ROLE_") ? clean.substring(5) : clean;
+                }
                 var authorities = Collections.singletonList(
-                        new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role.toUpperCase())
+                        new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + normalizedRole)
                 );
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(userId, null, authorities);

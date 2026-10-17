@@ -97,6 +97,7 @@ The database automatically seeds demo accounts for instant testing:
 ```
 
 ### Backend
+
 - **Framework**: Spring Boot 3.2.5 (Java 21)
 - **Security**: Spring Security 6 with stateless JWT Bearer token authentication & BCrypt hashing
 - **Database**: PostgreSQL 15+ / Flyway automated schema migrations (`V1` through `V5`)
@@ -104,6 +105,7 @@ The database automatically seeds demo accounts for instant testing:
 - **Testing**: JUnit 5, MockMvc, AssertJ
 
 ### Frontend
+
 - **Framework & Build**: React 18 + Vite 5 + Code-Splitting
 - **3D Graphics**: React Three Fiber (`@react-three/fiber`) + Drei (`@react-three/drei`) + Three.js
 - **Animations**: Framer Motion 11 (Spring easing & Shared layout `layoutId`)
@@ -116,23 +118,28 @@ The database automatically seeds demo accounts for instant testing:
 ## ⚡ Quick Start: Local Development
 
 ### Prerequisites
+
 - **Java 21 JDK** (Eclipse Temurin / OpenJDK)
 - **Node.js 18+** & **NPM**
 - **Maven 3.8+** (or use `./mvnw`)
 
 ### 1. Start Backend API
+
 ```bash
 cd backend
 mvn clean spring-boot:run
 ```
+
 *API boots at `http://localhost:8085`. Uses in-memory H2 PostgreSQL-compatible mode by default with automatic schema seeding.*
 
 ### 2. Start Frontend App
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
 *App launches at `http://localhost:5173`.*
 
 ---
@@ -140,6 +147,7 @@ npm run dev
 ## 🚀 Cloud Deployment Guide
 
 ### Deploying to Vercel (Frontend) & Render (Backend)
+
 1. Push code to GitHub repository (`mallikarjun086/healthpoint-fitness-gym-app`).
 2. **Frontend (Vercel)**: Import repo, set Root Directory to `frontend`, Framework to `Vite`, Build Command to `npm run build`, and `VITE_API_URL` to backend URL.
 3. **Backend (Render / Railway)**: Set Root Directory to `backend`, Runtime to Docker/Java 21, and configure PostgreSQL connection string (`SPRING_DATASOURCE_URL`).

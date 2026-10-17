@@ -1,12 +1,10 @@
 package com.healthpoint.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class WorkoutDayDto {
     private String day;
     private String focus;
@@ -14,6 +12,15 @@ public class WorkoutDayDto {
     private String sets;
     private String reps;
     private String rest;
+
+    public WorkoutDayDto(String day, String focus, String exercises, String sets, String reps, String rest) {
+        this.day = day;
+        this.focus = focus;
+        this.exercises = exercises;
+        this.sets = sets;
+        this.reps = reps;
+        this.rest = rest;
+    }
 
     public String getDay() { return day; }
     public void setDay(String day) { this.day = day; }

@@ -31,22 +31,27 @@ const LiveWorkoutModal = ({ isOpen, onClose, workoutTitle = "Upper Body Hypertro
   useEffect(() => {
     if (isOpen) {
       const currentUserId = user?.id || 3;
+      const defaultExercises = [
+        { id: 101, name: "Barbell Incline Bench Press", targetMuscle: "Upper Chest", suggestedSets: 4, suggestedReps: "8-10", suggestedWeightKg: 75, restSeconds: 90 },
+        { id: 102, name: "Cable Flyes (Low-to-High)", targetMuscle: "Chest Squeeze", suggestedSets: 3, suggestedReps: "12-15", suggestedWeightKg: 22.5, restSeconds: 60 },
+        { id: 103, name: "Overhead Triceps Extension", targetMuscle: "Triceps Long Head", suggestedSets: 4, suggestedReps: "10-12", suggestedWeightKg: 32, restSeconds: 60 }
+      ];
       api.post('/live-workout/start', { workoutName: workoutTitle, userId: currentUserId })
         .then(res => {
-          setSession(res.data);
-          if (res.data.exercises && res.data.exercises.length > 0) {
-            setWeightKg(res.data.exercises[0].suggestedWeightKg);
+          const sessionData = res.data || {};
+          if (!sessionData.exercises || sessionData.exercises.length === 0) {
+            sessionData.exercises = defaultExercises;
+          }
+          setSession(sessionData);
+          if (sessionData.exercises[0]?.suggestedWeightKg) {
+            setWeightKg(sessionData.exercises[0].suggestedWeightKg);
           }
         })
         .catch(() => {
           setSession({
             sessionId: "SESS-7894",
             workoutName: workoutTitle,
-            exercises: [
-              { id: 101, name: "Barbell Incline Bench Press", targetMuscle: "Upper Chest", suggestedSets: 4, suggestedReps: "8-10", suggestedWeightKg: 75, restSeconds: 90 },
-              { id: 102, name: "Cable Flyes (Low-to-High)", targetMuscle: "Chest Squeeze", suggestedSets: 3, suggestedReps: "12-15", suggestedWeightKg: 22.5, restSeconds: 60 },
-              { id: 103, name: "Overhead Triceps Extension", targetMuscle: "Triceps Long Head", suggestedSets: 4, suggestedReps: "10-12", suggestedWeightKg: 32, restSeconds: 60 }
-            ]
+            exercises: defaultExercises
           });
         });
     }
@@ -75,7 +80,15 @@ const LiveWorkoutModal = ({ isOpen, onClose, workoutTitle = "Upper Body Hypertro
 
   if (!isOpen || !session) return null;
 
-  const currentExercise = session.exercises[currentExIndex];
+  const currentExercise = session.exercises?.[currentExIndex] || {
+    id: 101,
+    name: "Barbell Incline Bench Press",
+    targetMuscle: "Upper Chest",
+    suggestedSets: 4,
+    suggestedReps: "8-10",
+    suggestedWeightKg: 75,
+    restSeconds: 90
+  };
 
   const handleLogSet = () => {
     const newSet = {

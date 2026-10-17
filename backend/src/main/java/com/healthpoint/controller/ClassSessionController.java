@@ -35,9 +35,20 @@ public class ClassSessionController {
     }
 
     @PostMapping("/book")
-    public ResponseEntity<?> bookClass(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> bookClass(
+            @RequestBody(required = false) Map<String, Object> payload,
+            org.springframework.security.core.Authentication auth) {
         try {
-            Long userId = Long.valueOf(payload.get("userId").toString());
+            Long requestedUserId = null;
+            if (payload != null && payload.get("userId") != null) {
+                try {
+                    requestedUserId = Long.valueOf(payload.get("userId").toString());
+                } catch (Exception ignored) {}
+            }
+            Long userId = com.healthpoint.util.SecurityUtil.resolveUserId(auth, requestedUserId);
+            if (payload == null || payload.get("classSessionId") == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "classSessionId is required"));
+            }
             Long classSessionId = Long.valueOf(payload.get("classSessionId").toString());
             ClassBooking booking = classSessionService.bookSession(userId, classSessionId);
             return ResponseEntity.ok(booking);

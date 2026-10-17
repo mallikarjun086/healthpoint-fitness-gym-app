@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Camera, 
@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
 import { toast } from 'sonner';
+import api from '../../api';
+import { useAuth } from '../../context/AuthContext';
 
 const defaultTimelinePhotos = [
   {
@@ -43,6 +45,8 @@ const defaultTimelinePhotos = [
 ];
 
 const ProgressPhotos = () => {
+  const { user } = useAuth();
+  const currentUserId = user?.id || 3;
   const [photos, setPhotos] = useState(defaultTimelinePhotos);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [comparisonBeforeIdx, setComparisonBeforeIdx] = useState(0);
@@ -56,27 +60,76 @@ const ProgressPhotos = () => {
     notes: ''
   });
 
-  const handleAddPhoto = (e) => {
+  useEffect(() => {
+    api.get(`/biometrics/progress/user/${currentUserId}`)
+      .then(res => {
+        const history = res.data?.history;
+        if (Array.isArray(history) && history.length > 0) {
+          const photoLogs = history
+            .filter(item => item.photoUrl)
+            .map(item => ({
+              id: item.id,
+              date: item.logDate ? new Date(item.logDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Recent',
+              stage: item.notes || 'Logged Progress',
+              weightKg: item.weightKg || 75.0,
+              bodyFat: item.bodyFatPercentage ? `${item.bodyFatPercentage}%` : '18.5%',
+              photoUrl: item.photoUrl,
+              notes: item.notes || 'Visual progress entry'
+            }));
+          if (photoLogs.length > 0) {
+            setPhotos([...photoLogs, ...defaultTimelinePhotos]);
+            setComparisonAfterIdx(photoLogs.length);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [currentUserId]);
+
+  const handleAddPhoto = async (e) => {
     e.preventDefault();
     if (!newPhoto.photoUrl) {
       toast.error('Please enter a photo image URL');
       return;
     }
 
-    const created = {
-      id: Date.now(),
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-      stage: newPhoto.stage || 'Week Transformation',
-      weightKg: parseFloat(newPhoto.weightKg) || 75.0,
-      bodyFat: newPhoto.bodyFat ? `${newPhoto.bodyFat}%` : '18.5%',
-      photoUrl: newPhoto.photoUrl,
-      notes: newPhoto.notes || 'Logged photo update'
-    };
+    const weightVal = parseFloat(newPhoto.weightKg) || 75.0;
+    const bodyFatVal = parseFloat(newPhoto.bodyFat) || 18.5;
 
-    setPhotos([...photos, created]);
+    try {
+      const payload = {
+        userId: currentUserId,
+        photoUrl: newPhoto.photoUrl,
+        weightKg: weightVal,
+        bodyFatPercentage: bodyFatVal,
+        notes: newPhoto.notes || newPhoto.stage || 'Progress photo log'
+      };
+      const res = await api.post('/biometrics/progress', payload);
+      const created = {
+        id: res.data?.id || Date.now(),
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+        stage: newPhoto.stage || 'Week Transformation',
+        weightKg: weightVal,
+        bodyFat: `${bodyFatVal}%`,
+        photoUrl: newPhoto.photoUrl,
+        notes: newPhoto.notes || 'Logged photo update'
+      };
+      setPhotos(prev => [created, ...prev]);
+    } catch (err) {
+      const created = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+        stage: newPhoto.stage || 'Week Transformation',
+        weightKg: weightVal,
+        bodyFat: `${bodyFatVal}%`,
+        photoUrl: newPhoto.photoUrl,
+        notes: newPhoto.notes || 'Logged photo update'
+      };
+      setPhotos(prev => [created, ...prev]);
+    }
+
     setComparisonAfterIdx(photos.length);
     setIsModalOpen(false);
-    toast.success('Transformation photo logged');
+    toast.success('Transformation photo logged & saved!');
     setNewPhoto({ stage: '', weightKg: '', bodyFat: '', photoUrl: '', notes: '' });
   };
 

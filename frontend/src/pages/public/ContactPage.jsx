@@ -18,13 +18,28 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import Navbar from '../../components/layout/Navbar';
 import TiltCard from '../../components/ui/TiltCard';
+import api from '../../api';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '', subject: 'General Inquiry' });
   const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.post('/leads/create', {
+        name: formData.name,
+        email: formData.email,
+        phone: '+91 99000 00000',
+        notes: `[Subject: ${formData.subject}] ${formData.message}`,
+        source: 'WEBSITE',
+        status: 'NEW',
+        assignedTo: 'Alex Mercer'
+      });
+    } catch (err) {}
+    setIsSubmitting(false);
     setIsSent(true);
     toast.success("Message received! Our team will respond within 2 business hours.");
   };

@@ -20,8 +20,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -49,13 +52,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/payments/webhook").permitAll()
+                        .requestMatchers("/api/payments/all").hasRole("ADMIN")
                         .requestMatchers("/api/membership/plans", "/api/addons/plans").permitAll()
                         .requestMatchers("/api/leads/create").permitAll()
                         .requestMatchers("/api/leads/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/users").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/trainer/**").hasAnyRole("TRAINER", "ADMIN")
-                        .requestMatchers("/api/classes/**", "/api/attendance/**", "/api/live-workout/**", "/api/biometrics/**", "/api/equipment/**", "/api/nutrition/**", "/api/chat/**", "/api/notifications/**", "/api/goals/**", "/api/diet/**", "/api/workout/**", "/api/ai/**", "/api/content/**").authenticated()
+                        .requestMatchers("/api/classes/**", "/api/attendance/**", "/api/live-workout/**", "/api/biometrics/**", "/api/equipment/**", "/api/nutrition/**", "/api/chat/**", "/api/notifications/**", "/api/goals/**", "/api/diet/**", "/api/workout/**", "/api/ai/**", "/api/content/**", "/api/exercises/**", "/api/gamification/**", "/api/safety/**", "/api/custom-workouts/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil),

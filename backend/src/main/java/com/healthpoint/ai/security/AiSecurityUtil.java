@@ -10,15 +10,11 @@ public class AiSecurityUtil {
     
     public Long getAuthenticatedUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new UnauthorizedAccessException("User is not authenticated");
+        Long userId = com.healthpoint.util.SecurityUtil.extractUserId(authentication);
+        if (userId == null) {
+            throw new UnauthorizedAccessException("User is not authenticated or invalid principal format");
         }
-        
-        try {
-            return (Long) authentication.getPrincipal();
-        } catch (ClassCastException e) {
-            throw new UnauthorizedAccessException("Invalid authentication principal format");
-        }
+        return userId;
     }
     
     public void validateOwnership(Long resourceUserId) {

@@ -1,7 +1,6 @@
 package com.healthpoint.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 @Table(name = "class_bookings")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class ClassBooking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

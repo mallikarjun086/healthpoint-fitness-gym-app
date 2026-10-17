@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Dumbbell, Menu, X, MapPin, Calculator, Video, Sparkles, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { motionTokens } from '../../tokens/designTokens';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
+  const { user, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
@@ -61,12 +63,24 @@ const Navbar = () => {
 
         {/* Auth CTA Actions (Desktop) */}
         <div className="hidden md:flex items-center gap-2 pointer-events-auto">
-          <Link to="/login" className="btn-secondary py-2 text-xs">
-            Sign In
-          </Link>
-          <Link to="/register" className="btn-primary py-2 text-xs">
-            Join Club <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          {isAuthenticated ? (
+            <Link 
+              to={user?.role === 'ADMIN' ? '/admin/dashboard' : user?.role === 'TRAINER' ? '/trainer/dashboard' : '/member/dashboard'} 
+              className="btn-primary py-2 text-xs flex items-center gap-1.5"
+            >
+              <span>Dashboard ({user?.name ? user.name.split(' ')[0] : 'Member'})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="btn-secondary py-2 text-xs">
+                Sign In
+              </Link>
+              <Link to="/register" className="btn-primary py-2 text-xs">
+                Join Club <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle Button */}
@@ -106,20 +120,33 @@ const Navbar = () => {
               })}
             </div>
             <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="btn-secondary w-full text-center py-2.5 text-xs"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setIsOpen(false)}
-                className="btn-primary w-full text-center py-2.5 text-xs"
-              >
-                Join HealthPoint Club
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  to={user?.role === 'ADMIN' ? '/admin/dashboard' : user?.role === 'TRAINER' ? '/trainer/dashboard' : '/member/dashboard'}
+                  onClick={() => setIsOpen(false)}
+                  className="btn-primary w-full text-center py-2.5 text-xs flex items-center justify-center gap-1.5"
+                >
+                  <span>Go to Dashboard ({user?.name ? user.name.split(' ')[0] : 'Member'})</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="btn-secondary w-full text-center py-2.5 text-xs"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsOpen(false)}
+                    className="btn-primary w-full text-center py-2.5 text-xs"
+                  >
+                    Join HealthPoint Club
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         )}

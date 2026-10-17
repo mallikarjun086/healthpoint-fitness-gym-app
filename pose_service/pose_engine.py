@@ -16,14 +16,35 @@ from typing import Dict, List, Any, Optional, Tuple
 class PoseEngine:
 
     @staticmethod
+    def _safe_coord(pt: Optional[Dict[str, Any]], key: str, default: float = 0.0) -> float:
+        """Safely extract float coordinate from a landmark dict, handling None or invalid types."""
+        if not isinstance(pt, dict):
+            return default
+        val = pt.get(key)
+        if val is None:
+            return default
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return default
+
+    @staticmethod
     def calculate_3d_angle(a: Dict[str, float], b: Dict[str, float], c: Dict[str, float]) -> float:
         """
         Calculates angle at joint B given 3 points A, B, C in degrees.
         Points are dicts with 'x', 'y', and optional 'z'.
         """
-        ax, ay, az = a.get('x', 0.0), a.get('y', 0.0), a.get('z', 0.0)
-        bx, by, bz = b.get('x', 0.0), b.get('y', 0.0), b.get('z', 0.0)
-        cx, cy, cz = c.get('x', 0.0), c.get('y', 0.0), c.get('z', 0.0)
+        ax = PoseEngine._safe_coord(a, 'x', 0.0)
+        ay = PoseEngine._safe_coord(a, 'y', 0.0)
+        az = PoseEngine._safe_coord(a, 'z', 0.0)
+
+        bx = PoseEngine._safe_coord(b, 'x', 0.0)
+        by = PoseEngine._safe_coord(b, 'y', 0.0)
+        bz = PoseEngine._safe_coord(b, 'z', 0.0)
+
+        cx = PoseEngine._safe_coord(c, 'x', 0.0)
+        cy = PoseEngine._safe_coord(c, 'y', 0.0)
+        cz = PoseEngine._safe_coord(c, 'z', 0.0)
 
         # Vectors BA and BC
         v1 = (ax - bx, ay - by, az - bz)
@@ -44,9 +65,17 @@ class PoseEngine:
     @staticmethod
     def calculate_distance(a: Dict[str, float], b: Dict[str, float]) -> float:
         """Euclidean distance between two landmarks."""
-        dx = a.get('x', 0.0) - b.get('x', 0.0)
-        dy = a.get('y', 0.0) - b.get('y', 0.0)
-        dz = a.get('z', 0.0) - b.get('z', 0.0)
+        ax = PoseEngine._safe_coord(a, 'x', 0.0)
+        ay = PoseEngine._safe_coord(a, 'y', 0.0)
+        az = PoseEngine._safe_coord(a, 'z', 0.0)
+
+        bx = PoseEngine._safe_coord(b, 'x', 0.0)
+        by = PoseEngine._safe_coord(b, 'y', 0.0)
+        bz = PoseEngine._safe_coord(b, 'z', 0.0)
+
+        dx = ax - bx
+        dy = ay - by
+        dz = az - bz
         return math.sqrt(dx**2 + dy**2 + dz**2)
 
     def analyze_squat(self, landmarks: List[Dict[str, float]]) -> Dict[str, Any]:
@@ -56,7 +85,7 @@ class PoseEngine:
         - Hip Flexion: Shoulder (11/12) -> Hip (23/24) -> Knee (25/26)
         - Knee Valgus: Distance between knees vs distance between ankles
         """
-        if len(landmarks) < 33:
+        if not landmarks or len(landmarks) < 33:
             return {"valid": False, "error": "Insufficient landmarks"}
 
         # Left & Right side angles
@@ -73,6 +102,13 @@ class PoseEngine:
         ankle_dist = self.calculate_distance(landmarks[27], landmarks[28])
         valgus_ratio = (knee_dist / ankle_dist) if ankle_dist > 0.001 else 1.0
 
+        # Phase estimation
+        phase = "STANDING"
+        if avg_knee_angle < 95.0:
+            phase = "BOTTOM_INFLECTION"
+        elif avg_knee_angle < 140.0:
+            phase = "IN_MOTION"
+
         # Faults
         faults = []
         cues = []
@@ -84,15 +120,9 @@ class PoseEngine:
         if avg_knee_angle < 70.0:
             faults.append("EXCESSIVE_DEPTH")
             cues.append("Control depth at parallel")
-        elif avg_knee_angle > 105.0 and avg_knee_angle < 130.0:
+        elif avg_knee_angle > 105.0 and phase == "BOTTOM_INFLECTION":
+            faults.append("SHALLOW_DEPTH")
             cues.append("Hit parallel depth")
-
-        # Phase estimation
-        phase = "STANDING"
-        if avg_knee_angle < 95.0:
-            phase = "BOTTOM_INFLECTION"
-        elif avg_knee_angle < 140.0:
-            phase = "IN_MOTION"
 
         return {
             "valid": True,
@@ -113,7 +143,7 @@ class PoseEngine:
         - Elbow Flexion: Shoulder (11/12) -> Elbow (13/14) -> Wrist (15/16)
         - Body Line / Core Sag: Shoulder (11/12) -> Hip (23/24) -> Ankle (27/28)
         """
-        if len(landmarks) < 33:
+        if not landmarks or len(landmarks) < 33:
             return {"valid": False, "error": "Insufficient landmarks"}
 
         l_elbow = self.calculate_3d_angle(landmarks[11], landmarks[13], landmarks[15])
@@ -157,8 +187,9 @@ class PoseEngine:
         Deadlift / Hip Hinge Kinematics:
         - Hip Hinge: Shoulder (11/12) -> Hip (23/24) -> Knee (25/26)
         - Knee Angle: Hip (23/24) -> Knee (25/26) -> Ankle (27/28)
+        - Spine Line: Shoulder (11/12) -> Hip (23/24) -> Ankle (27/28)
         """
-        if len(landmarks) < 33:
+        if not landmarks or len(landmarks) < 33:
             return {"valid": False, "error": "Insufficient landmarks"}
 
         l_hip = self.calculate_3d_angle(landmarks[11], landmarks[23], landmarks[25])
@@ -169,12 +200,20 @@ class PoseEngine:
         r_knee = self.calculate_3d_angle(landmarks[24], landmarks[26], landmarks[28])
         avg_knee = round((l_knee + r_knee) / 2.0, 1)
 
+        l_spine = self.calculate_3d_angle(landmarks[11], landmarks[23], landmarks[27])
+        r_spine = self.calculate_3d_angle(landmarks[12], landmarks[24], landmarks[28])
+        avg_spine = round((l_spine + r_spine) / 2.0, 1)
+
         faults = []
         cues = []
 
         if avg_knee < 80.0 and avg_hip < 90.0:
             faults.append("SQUATTING_DEADLIFT")
             cues.append("Push hips back horizontally, don't squat")
+
+        if avg_spine < 155.0:
+            faults.append("ROUNDED_SPINE")
+            cues.append("Maintain a flat, neutral spine throughout the pull")
 
         phase = "LOCKOUT"
         if avg_hip < 90.0:
@@ -188,6 +227,7 @@ class PoseEngine:
             "phase": phase,
             "hipHingeAngle": avg_hip,
             "kneeAngle": avg_knee,
+            "spineAngle": avg_spine,
             "isSafe": len(faults) == 0,
             "faults": faults,
             "coachingCue": cues[0] if cues else "Drive hips forward",
@@ -200,7 +240,7 @@ class PoseEngine:
         - Torso Incline Angle: Shoulder -> Hip -> Vertical
         - Elbow Drive Angle: Shoulder -> Elbow -> Wrist
         """
-        if len(landmarks) < 33:
+        if not landmarks or len(landmarks) < 33:
             return {"valid": False, "error": "Insufficient landmarks"}
 
         l_elbow = self.calculate_3d_angle(landmarks[11], landmarks[13], landmarks[15])
@@ -234,3 +274,82 @@ class PoseEngine:
             "coachingCue": cues[0] if cues else "Squeeze shoulder blades",
             "formScore": max(60, 100 - (len(faults) * 20))
         }
+
+    def analyze_overhead_press(self, landmarks: List[Dict[str, float]]) -> Dict[str, Any]:
+        """
+        Overhead Press Kinematics:
+        - Elbow Lockout: Shoulder (11/12) -> Elbow (13/14) -> Wrist (15/16)
+        """
+        if not landmarks or len(landmarks) < 33:
+            return {"valid": False, "error": "Insufficient landmarks"}
+
+        l_elbow = self.calculate_3d_angle(landmarks[11], landmarks[13], landmarks[15])
+        r_elbow = self.calculate_3d_angle(landmarks[12], landmarks[14], landmarks[16])
+        avg_elbow = round((l_elbow + r_elbow) / 2.0, 1)
+
+        faults = []
+        cues = []
+
+        if avg_elbow < 60.0:
+            faults.append("EXCESSIVE_ELBOW_FLARE")
+            cues.append("Keep elbows angled slightly forward in scapular plane")
+
+        phase = "RACK_POSITION"
+        if avg_elbow > 160.0:
+            phase = "LOCKOUT"
+        elif avg_elbow > 100.0:
+            phase = "PRESSING"
+
+        return {
+            "valid": True,
+            "exercise": "OVERHEAD_PRESS",
+            "phase": phase,
+            "elbowAngle": avg_elbow,
+            "isSafe": len(faults) == 0,
+            "faults": faults,
+            "coachingCue": cues[0] if cues else "Press overhead over midfoot",
+            "formScore": max(60, 100 - (len(faults) * 20))
+        }
+
+    def analyze_bicep_curl(self, landmarks: List[Dict[str, float]]) -> Dict[str, Any]:
+        """
+        Bicep Curl Kinematics:
+        - Elbow Flexion: Shoulder (11/12) -> Elbow (13/14) -> Wrist (15/16)
+        - Body Sway / Momentum: Shoulder (11/12) -> Hip (23/24) -> Knee (25/26)
+        """
+        if not landmarks or len(landmarks) < 33:
+            return {"valid": False, "error": "Insufficient landmarks"}
+
+        l_elbow = self.calculate_3d_angle(landmarks[11], landmarks[13], landmarks[15])
+        r_elbow = self.calculate_3d_angle(landmarks[12], landmarks[14], landmarks[16])
+        avg_elbow = round((l_elbow + r_elbow) / 2.0, 1)
+
+        l_sway = self.calculate_3d_angle(landmarks[11], landmarks[23], landmarks[25])
+        r_sway = self.calculate_3d_angle(landmarks[12], landmarks[24], landmarks[26])
+        avg_sway = round((l_sway + r_sway) / 2.0, 1)
+
+        faults = []
+        cues = []
+
+        if avg_sway < 160.0 or avg_sway > 195.0:
+            faults.append("BODY_SWING")
+            cues.append("Keep torso upright, avoid swinging for momentum")
+
+        phase = "BOTTOM_EXTENSION"
+        if avg_elbow < 60.0:
+            phase = "PEAK_CONTRACTION"
+        elif avg_elbow < 130.0:
+            phase = "IN_MOTION"
+
+        return {
+            "valid": True,
+            "exercise": "BICEP_CURL",
+            "phase": phase,
+            "elbowAngle": avg_elbow,
+            "swayAngle": avg_sway,
+            "isSafe": len(faults) == 0,
+            "faults": faults,
+            "coachingCue": cues[0] if cues else "Keep upper arms pinned to sides",
+            "formScore": max(60, 100 - (len(faults) * 20))
+        }
+
